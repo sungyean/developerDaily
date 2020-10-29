@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>거점소독시설 관리자 사이트</title>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/fonts.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui-1.11.0.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script src="../assets/js/jquery-ui.min.js"></script>
+	<script src="../assets/js/jquery.mCustomScrollbar.min.js"></script>
+	<script src="../assets/js/custom.js"></script>
+	<!--주소검색 API-->
+	<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+	<!--JQUERY modal-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+	<!-- JQuery validation -->
+	<script type="text/javascript" src="../assets/js/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="../assets/js/additional-methods.min.js"></script>
+	<script type="text/javascript" src="../assets/js/messages_ko.min.js"></script>
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+</head>
+<body>
+	<div class="header">
+	
+		<!-- TOP SECTION -->
+		<div id="headers"></div>
+		<!-- //TOP SECTION -->
+		<!-- GNB SECTION -->
+		<div id="gnb"></div>
+		<!-- //GNB SECTION -->
+		<!-- contents -->
+		<div class="contents clearfix" id="contents">
+			<div class="lnb-wrap">
+				<h2 class="lnb-tit"><span>시설 등록</span></h2>
+				<ul class="lnb-menu">
+					<li>
+						<a href="facilitiesList.html">시설 현황</a>
+						<ul>
+							<li class="on"><a href="facilitiesAdd.html">시설 등록</a></li>
+						</ul>
+					</li> 
+					<li>
+						<a href="facilitiesVisitList.html">방문 현황</a>
+					</li>                   
+				</ul>
+			</div>
+
+			<form id="saveFacilities" method="POST"> 
+				<input type="hidden" id="registerId" name="registerId">
+				<div class="contents-inn">
+					<h3 class="page-tit"><span>시설 등록</span></h3>
+					<div class="tb-wrap Add">
+						<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>시설 기본정보</h4>
+						<table>                        
+							<tbody>
+								<tr>
+									<th><span class="mark-essential">*</span>시설 명</th>
+									<td class="condition-input-box">
+										<div class="search-box">
+											<input type="text" id="nm" name="nm" class="condition search">
+										</div>
+									</td>                                 
+									<th><span class="mark-essential">*</span>시설 코드</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" id="fcltyCode" name="fcltyCode" class="">
+										</div>
+									</td>                                
+								</tr>
+								<tr>
+
+								</tr>
+								<tr>
+									<th><span class="mark-essential">*</span>시설 지역</th>
+									<td class="condition-input-box">
+										<select id="area" name="area" class="">                    
+											<option value="" selected="">지역선택</option>                    
+											<option value="SU">서울</option>                    
+											<option value="GG">경기</option>                    
+											<option value="IC">인천</option>                    
+											<option value="BS">부산</option>                    
+											<option value="DG">대구</option>   
+											<option value="GJ">광주</option>                    
+											<option value="DJ">대전</option>                    
+											<option value="US">울산</option>                    
+											<option value="SJ">세종</option>                    
+											<option value="GW">강원</option>    
+											<option value="GN">경남</option>                    
+											<option value="GB">경북</option>                    
+											<option value="JN">전남</option>                    
+											<option value="JNBK">전북</option>                    
+											<option value="CHN">충남</option> 
+											<option value="CB">충북</option> 
+											<option value="JJ">제주</option>                  
+										</select>
+									</td>
+									<th><span class="mark-essential">*</span>축종</th>
+									<td class="condition-input-box">
+										<select id="ty" name="ty" class="">                    
+											<option value="" selected="">축종 타입</option>                    
+											<!-- <option value="DSNF_FCLTY">소독시설</option> -->
+											<option value="LVSTCK_BRD_FCLTY">가축사육시설</option>
+											<option value="SLAU_MLKC_PLACE">도축장 및 집유장</option>
+											<option value="EDYG_COLCT_SLE_BSSH">식용란수집판매업소</option>
+											<option value="FEED_FCTRY">사료공장</option>
+											<option value="LVSTCK_MRKT">가축시장</option>
+											<option value="LVSTCK_ATHRZ_INSTT">가축검정기관</option>
+											<option value="SPCS_STKRS_PLACE">종축산장소</option>
+											<option value="HATCHERY">부화장</option>
+											<option value="FRTLZR_FCTRY">비료공장</option>
+											<option value="LVSTCK_EXCRS_PROCESS_ENTRPS">가축분뇨처리업체</option>
+											<option value="ETC">기타</option>
+										</select>
+									</td>                              
+								</tr>
+								
+								<tr>
+									<th><span class="mark-essential">*</span>시설 소재지</th>
+									<td class="condition-input-box">
+										<div class="search-box">
+											지번/도로명 &nbsp;<input type="text" id="rnAdres1" name="rnAdres1" class="condition search" readonly><button class="btn-td-search" onClick="addressModal()">검색</button>
+											<br>상세주소&nbsp;<input type="text" id="adres2" name="adres2" class="condition search">
+											<input type="hidden" id="zip" name="zip">
+											<input type="hidden" id="lmnAdres1" name="lmnAdres1">
+										</div>
+									</td> 
+									<th><span class="mark-essential">*</span>시설 등록일</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" class="" id="fcltyRegistde" name="fcltyRegistde">
+										</div>
+									</td> 
+								</tr>
+								<tr>
+									<th><span class="mark-essential">*</span>운영 상태</th>
+									<td class="condition-input-box" colspan="3">
+										<select id="status" name="status" class="">                    
+											<option value="" selected="">운영 상태</option>                    
+											<option value="NRMLT">정상</option>
+											<option value="WAIT">대기</option>
+											<option value="EMGNC">비상</option>
+											<option value="CLS">폐쇄</option>
+										</select>
+									</td> 
+								</tr>
+							</tbody>
+						</table>
+					</div> 
+					<div class="tb-wrap Add">
+						<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>구제역 정보</h4>
+						<table>                        
+							<tbody>
+								<tr>
+									<th>구제역 이동제한 시설</th>
+									<td class="condition-input-box">
+										<label class="container radio">이동제한
+											<input type="radio" id="fmdMvmnLmtt" name="fmdMvmnLmtt" value="true">
+											<span class="checkmark"></span>
+										</label>                                      
+										<label class="container radio">이동제한 해제
+											<input type="radio" checked="checked" id="fmdMvmnLmtt" name="fmdMvmnLmtt" value="false">
+											<span class="checkmark"></span>
+										</label>
+									</td> 
+									<th>등록일</th>
+									<td class="condition-input-box">
+										<div class="input-datepicker-box">
+										<span class="icon-calender"><img src="../assets/images/ico-date.png" alt="날짜 선택" title="날짜 선택"></span>
+										<input type="text" id="fmdMvmnLmttDt" name="fmdMvmnLmttDt" class="input-datepicker">
+									</div>
+								</td>                                
+								</tr>
+							</tbody>
+						</table>
+					</div> 
+					<div class="tb-wrap Add">
+						<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>소유주 정보</h4>
+						<table>                        
+							<tbody>
+								<tr>
+									<th><span class="mark-essential">*</span>소유주 명</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" class="" id="ownerNm" name="ownerNm">
+										</div>
+									</td>  
+									<th><span class="mark-essential">*</span>소유주 연락처</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" class="" id="ownerCttpc" name="ownerCttpc">
+										</div>
+									</td>   
+									<th><span class="mark-essential">*</span>소유주 주소</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" name="ownerAdres1" id="ownerAdres1"  placeholder="소유주 주소" readonly>
+											<button type="button" class="btn-td-search" onclick="ownerAdresOnClick();">검색</button>
+											<input type="text" name="ownerAdres2" id="ownerAdres2"  placeholder="소유주 상세주소">
+											<input type="hidden" name="ownerZip" id="ownerZip" placeholder="소유주 우편번호">
+										</div>
+									</td>                                
+								</tr>
+							</tbody>
+						</table>
+					</div> 
+					<div class="tb-wrap Add">
+						<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>책임자 정보</h4>
+						<table>                        
+							<tbody>
+								<tr>
+									<th><span class="mark-essential">*</span>책임자 명</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" class="" id="rspnberNm" name="rspnberNm">
+										</div>
+									</td>  
+									<th><span class="mark-essential">*</span>책임자 연락처</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" class="" id="rspnberCttpc" name="rspnberCttpc">
+										</div>
+									</td>   
+									<th><span class="mark-essential">*</span>책임자 주소</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" id="rspnberAdres1" name="rspnberAdres1"  placeholder="책임자 주소" readonly>
+											<button type="button" class="btn-td-search" onclick="rspnberAddressOnclick();">검색</button>
+											<input type="text" id="rspnberAdres2" name="rspnberAdres2"  placeholder="책임자 상세주소">
+											<input type="hidden" id="rspnberZip" name="rspnberZip"  placeholder="책임자 우편번호">
+										</div>
+									</td>                                
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					
+					<div class="btn-tbView-box">
+						<button class="btn-save" type="submit" ><span class="icon-save"><img src="../assets/images/icon-save.png" alt="저장"></span>저장</button>
+						<button class="btn-list" type="button" onclick="location.href='./facilitiesList.html'"><span class="icon-list"><img src="../assets/images/icon-list.png" alt="목록"></span>목록</button>
+					</div>               
+				</div>
+			</form> 
+		</div>
+		<!-- //contents -->
+	</div>
+	<!-- 주소검색 dialog div -->
+	<div id="modal_zipAddress" style="width: 500px;"></div>
+	<div id="ownerAdres" style="width: 500px;"></div>
+	<div id="rspnberAddress" style="width: 500px;"></div>
+</body>
+</html>
+<script>
+	$(document).ready(function() {
+		$("#headers").load("../common/headers.html");
+		$("#gnb").load("../common/gnb.html");
+		//로그인 ID 저장.
+		let loginId = getSigninAccount().accountId;
+		$('#registerId').val(loginId)			
+	});		
+
+	function addressModal() {
+		var element_wrap = document.getElementById("modal_zipAddress");
+		new daum.Postcode({
+			oncomplete:function(data) {
+				jQuery("#zip").val(data.zonecode);
+				$('[name=rnAdres1]').val(data.roadAddress);
+				$('[name=lmnAdres1]').val(data.jibunAddress);
+				jQuery("#adres2").focus();
+			}
+			, onclose:function(state) {
+				$("#modal_zipAddress").dialog("close");
+			} 
+		}).embed(element_wrap);
+		$("#modal_zipAddress").dialog({
+			width: "550px"
+		});
+	}
+
+	$(function(){ 
+		$("#saveFacilities").validate({
+			//validation이 끝난 이후의 submit 직전 추가 작업할 부분
+			submitHandler: function(form, event) {
+				event.preventDefault(); //form 의 submit 을 막고 ajax 로 동작하기 위한 구문
+				var tempArray = $(form).serializeArray();
+				var formData = { }
+								
+				for(i=0; i<tempArray.length; i++){
+					formData[tempArray[i].name] =  tempArray[i].value;
+				}
+								
+				var f = confirm("시설을 등록하시겠습니까?");
+				if(f){
+					$.ajax({
+						type: form.method,
+						url: global.apiUrl+"/cmStkrsFcltyInfoMs/insert",
+						async: false,
+						data: JSON.stringify(formData),
+						contentType: "application/json",
+						dataType: 'json',
+						complete: function (res) {
+							document.location.href = './facilitiesList.html';
+						},
+						success: function (res) {
+							alert("시설이 등록되었습니다.");
+						},
+						error: function(err) {
+							alert("error");
+						}
+					});
+					return false;
+				} else {
+					return false;
+				}
+			},
+			//규칙
+			rules: {
+				area: {
+					required : true,
+					//minlength : 3,
+					//equalTo : password
+				},
+				nm: {
+					required : true,
+					minlength : 2
+				},
+				registerId: {
+					required : true,
+					//digits : true // 숫자만 입력
+				},
+				status: {
+					required : true,
+					//minlength : 2
+				},
+				ty: {
+					required : true,
+					//minlength : 2
+				},
+				zip: {
+					required : true,
+					minlength : 2
+				},
+				ownerNm : {
+					required : true,
+					minlength : 1
+				},
+				ownerCttpc : {
+					required : true,
+					minlength : 1
+				},
+				ownerAdres1 : {
+					required : true,
+					minlength : 1
+				},
+				rspnberNm : {
+					required : true,
+					minlength : 1
+				},
+				rspnberCttpc : {
+					required : true,
+					minlength : 1
+				},
+				rspnberAdres1 : {
+					required : true,
+					minlength : 1
+				},
+				fcltyRegistde : {
+					required: true,
+					minlength: 2,
+					maxlength: 10,
+					fcltyRegistdeChk : true
+				},
+				fcltyCode : {
+					required : true,
+					minlength : 1
+				},
+				rnAdres1 : {
+					required : true
+				}
+			},
+			//규칙체크 실패시 출력될 메시지
+			messages : {
+				area: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				nm: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다"
+				},
+				registerId: {
+					required : "필수로입력하세요",
+				},
+				status: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				ty: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				zip: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				ownerNm : {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				ownerCttpc : {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				ownerAdres1 : {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				rspnberNm : {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				rspnberCttpc : {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				rspnberAdres1 : {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				fcltyRegistde : {
+					required: "필수로 입력하세요",
+					minlength: "최소 {0}글자이상이어야 합니다",
+					maxlength: "최대 {0}글자이하이어야 합니다",
+					fcltyRegistdeChk : "시설등록일은(2020.09.01)형식으로 작성해 주세요."
+				},
+				fcltyCode : {
+					required: "필수로 입력하세요",
+					minlength: "최소 {0}글자이상이어야 합니다"
+				},
+				rnAdres1 : {
+					required: "필수로 입력하세요"
+				}
+			}
+		});
+		$.validator.addMethod("fcltyRegistdeChk",  function( value, element ) {
+				return this.optional(element) ||   /[0-9]{4}.(0?[1-9]|1[012]).(0?[1-9]|[12][0-9]|3[01])/.test(value);
+			});
+	});
+
+	function ownerAdresOnClick(){
+		var element_wrap = document.getElementById("ownerAdres");
+		new daum.Postcode({
+			oncomplete:function(data) {
+				console.log(data)
+                if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+					$('#ownerAdres1').val(data.roadAddress);
+				} else { // 사용자가 지번 주소를 선택했을 경우(J)
+					$('#ownerAdres1').val(data.jibunAddress);
+				}
+				$("#ownerZip").val(data.zonecode);
+				$("#ownerAdres2").focus();
+			}
+			, onclose:function(state) {
+				$("#ownerAdres").dialog("close");
+			} 
+		}).embed(element_wrap); 
+		$("#ownerAdres").dialog({
+			autoOpen: true,
+			width: "550px",
+			modal: true,
+			show:{
+				effect: "build"
+			}
+		});
+	}
+
+	function rspnberAddressOnclick(){
+		var element_wrap = document.getElementById("rspnberAddress");
+		new daum.Postcode({
+			oncomplete:function(data) {
+				console.log(data)
+                if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+					$('#rspnberAdres1').val(data.roadAddress);
+				} else { // 사용자가 지번 주소를 선택했을 경우(J)
+					$('#rspnberAdres1').val(data.jibunAddress);
+				}
+				$("#rspnberZip").val(data.zonecode);
+				$("#rspnberAdres2").focus();
+			}
+			, onclose:function(state) {
+				$("#rspnberAddress").dialog("close");
+			} 
+		}).embed(element_wrap); 
+		$("#rspnberAddress").dialog({
+			autoOpen: true,
+			width: "550px",
+			modal: true,
+			show:{
+				effect: "build"
+			}
+		});
+	}
+
+
+</script>

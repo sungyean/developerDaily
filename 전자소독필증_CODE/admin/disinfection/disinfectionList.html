@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>거점소독시설 관리자 사이트</title>
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/fonts.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui-1.11.0.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery.mCustomScrollbar.min.js"></script>
+	<script type="text/javascript" src="../assets/js/custom.js"></script>
+	<script type="text/javascript" src="../assets/js/excelexportjs.js"></script>
+	<!-- jquery DataTable script 시작 -->
+	<link rel="stylesheet" href="../assets/css/tableData.css">
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+	<!-- jquery DataTable script 끝 -->
+	<!-- Data format 시작 -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+	<!-- Data format 끝-->
+</head>
+<body>
+	<div class="header">
+		<!-- TOP SECTION -->
+		<div id="headers"></div>
+		<!-- //TOP SECTION -->
+		<!-- GNB SECTION -->
+		<div id="gnb"></div>
+		<!-- //GNB SECTION -->    
+		<!-- contents -->
+		<div class="contents clearfix" id="contents">
+			<div class="lnb-wrap">
+				<h2 class="lnb-tit"><span>전자소독필증 관리</span></h2>
+				<ul class="lnb-menu">
+					<li class="on">
+						<a href="disinfectionList.html">전자소독필증 발급 현황</a>
+						<ul>
+							<li><a href="disinfectionAdd.html">전자소독필증 등록</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div class="contents-inn">
+				<h3 class="page-tit"><span>전자소독필증 발급현황</span></h3>
+				<div class="tb-summary-wrap">
+					<table>
+						<div class="tb-datetime-box">
+							<span class="tb-datetime" id="currentTime">00:00</span>
+							
+						</div>                        
+						<tbody>
+							<tr>
+								<th>현재 전자소독필증 신청 건수</th>
+								<td id="cutRegistDt"></td>
+								<th>현재 전자소독필증 발급 승인 건수</th>
+								<td id="cutIssuDt"></td>
+								<th>현재 전자소독필증 발급 거절 건수</th>
+								<td id="cutRejectDt"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="search-condition-box clearfix">
+					<!-- <div class="search-condition-tit">검색조건</div> -->
+					<table class="tb-modal-option">
+						<tr>
+							<th>기간 선택</th>
+							<td class="condition-input-box">
+								<div class="input-datepicker-box">
+									<span class="icon-calender"><img src="../assets/images/ico-date.png" alt="날짜 선택" title="날짜 선택"></span>
+									<input type="text" id="datepickerStart" class="input-datepicker">
+								</div>
+								<div class="ico-wave">
+									~
+								</div>
+								<div class="input-datepicker-box">
+									<span class="icon-calender"><img src="../assets/images/ico-date.png" alt="날짜 선택" title="날짜 선택"></span>
+									<input type="text" id="datepickerEnd" class="input-datepicker">
+								</div>
+							</td>
+							<th>지역 선택</th>
+							<td class="condition-input-box">
+								<select id="area" name="area" class="">                    
+									<option value="" selected="">지역선택</option>                    
+									<option value="SU">서울</option>                    
+									<option value="GG">경기</option>                    
+									<option value="IC">인천</option>                    
+									<option value="BS">부산</option>                    
+									<option value="DG">대구</option>   
+									<option value="GJ">광주</option>                    
+									<option value="DJ">대전</option>                    
+									<option value="US">울산</option>                    
+									<option value="SJ">세종</option>                    
+									<option value="GW">강원</option>    
+									<option value="GN">경남</option>                    
+									<option value="GB">경북</option>                    
+									<option value="JN">전남</option>                    
+									<option value="JNBK">전북</option>                    
+									<option value="CHN">충남</option> 
+									<option value="CB">충북</option> 
+									<option value="JJ">제주</option>                  
+								</select>
+							</td>
+						</tr>
+						<tr>                           
+							<th>차량 유형</th>
+							<td class="condition-input-box">
+								<select id="carCl" name="carCl" class="">                    
+									<option value="" selected="">차량 분류</option>
+									<option value="LVSTCK_CNVYNC">가축 운반차량</option>
+									<option value="CDL_CNVYNC">원유 운반차량</option>
+									<option value="EGG_CNVYNC">알 운반차량</option>
+									<option value="ANIMAL_MEDCIN_CNVYNC">동물(의)약품 운반차량</option>
+									<option value="FEED_CNVYNC">사료 운반차량</option>
+									<option value="BIRD_FEED_CNVYNC">조사료 운반차량</option>
+									<option value="LVSTCK_EXCRS_CNVYNC">가축분뇨 운반차량</option>
+									<option value="RICE_CNVYNC">왕겨,쌀겨,톱밥운반차량</option>
+									<option value="CPT_CNVYNC">퇴비 운반차량</option>
+									<option value="CLNIC_VHCLE">진료 차량</option>
+									<option value="PREVNT_INOCL_VHCLE">예방접종 차량</option>
+									<option value="ARTIF_UPDT_VHCLE">인공수정 차량</option>
+									<option value="CNSL_VHCLE">컨설팅 차량</option>
+									<option value="FEED_PICK_VHCLE">사료채취 차량</option>
+									<option value="DSNFC_VHCLE">방역 차량</option>
+									<option value="MCHN_REPAIR_VHCLE">기계수리 차량</option>
+									<option value="DFWS_SHIPMNT_VHCLE">가금출하 차량</option>
+									<option value="DLVY_VHCLE">배송상하차 차량</option>
+									<option value="HNF_TRNSP_VHCLE">인력수송 차량</option>
+									<option value="GNRL_VHCLE">일반 차량</option>
+									<option value="STKRS_VHCLE">축산 차량</option>
+									<option value="ETC_VHCLE">기타 차량</option>
+								</select>
+							</td>
+							<th>거점소독시설명</th>
+							<td class="condition-input-box">
+								<div class="search-box">
+									<input type="search" class="condition search" id="fcltyNm">
+								</div>
+							</td> 
+						</tr>
+					</table>  
+					<div class="btn-search-condition-box">
+						<!-- <button class="btn-reset">초기회</button> -->
+						<button class="btn-search" onclick="searchFunction();" ><span class="icon-search"><img src="../assets/images/ico-search.png" alt="검색"></span>검색</button>
+					</div>                 
+				</div>               
+				<div class="tb-wrap">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>전자소독필증 발급현황 목록</h4>
+					<div class="btn-add-wrap">
+						<button class="btn-add" id='DLtoExcel'>엑셀 다운로드</button>
+						<button class="btn-add" onclick="location.href='disinfectionAdd.html'"><span class="icon-add"><img src="../assets/images/icon-add.png" alt="등록하기"></span>전자소독필증 등록하기</button>
+					</div>
+					<table class="tb-list" id="tableList">
+						<thead>
+							<tr>
+								<th>No</th>
+								<th>지역</th>
+								<th>거점소독시설명</th>
+								<th>출발지</th>
+								<th>도착지</th>
+								<th>차량유형</th>
+								<th>운전자명</th>
+								<th>차량번호</th>
+								<th>발급승인 이력</th>
+								<th>발급거절 이력</th>
+							</tr>
+						</thead>
+					</table>
+				</div>               
+			</div>
+			
+		</div>
+		<!-- //contents -->
+	</div>
+</body>
+</html>
+<script>
+	$("#headers").load("../common/headers.html");
+	$("#gnb").load("../common/gnb.html");
+</script>
+
+<script type="text/javascript">
+	let draw = "";
+	let totalPage = "";
+	let table = "";
+	let getLocalStorage;
+	$(document).ready(function() {
+		getLocalStorage =  JSON.parse(localStorage.getItem("SignInAccount"));
+		let registDt = "";
+		var today = new Date(); 
+		var tomorrow = new Date(today.valueOf() + (24*60*60*1000)); var year = tomorrow.getFullYear(); 
+		currentTime();
+		//하루 전자소독필증 발급건수
+		registDt+="&schColumns=registDt"+"&schKeywords="+moment(today).format('YYYYMMDD 00:00:00.000000') +"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=GT"+"&conditions=AND"
+		registDt+="&schColumns=registDt"+"&schKeywords="+moment(tomorrow).format('YYYYMMDD 23:59:59.000999') +"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=LT"+"&conditions=AND"
+		$.ajax({
+			url : global.apiUrl+"/elctrnDsnfCerfins/countBy?"+registDt,
+			type: "GET",
+			cache: false,
+			dataType: "json",
+			success: function(data){
+				$("#cutRegistDt").html(data.page.totalElements)
+
+			}
+		})
+		//발급 승인
+		let issuDt = "";
+		issuDt+="&schColumns=issuDt"+"&schKeywords="+moment(today).format('YYYYMMDD 00:00:00.000000') +"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=GT"+"&conditions=AND"
+		issuDt+="&schColumns=issuDt"+"&schKeywords="+moment(tomorrow).format('YYYYMMDD 23:59:59.000999') +"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=LT"+"&conditions=AND"
+		$.ajax({
+			url : global.apiUrl+"/elctrnDsnfCerfins/countBy?"+issuDt,
+			type: "GET",
+			cache: false,
+			dataType: "json",
+			success: function(data){
+				$("#cutIssuDt").html(data.page.totalElements)
+			}
+		})
+		//발급 거절
+		//issuRejectDt
+		let issuRejectDt = "";
+		issuRejectDt+="&schColumns=issuRejectDt"+"&schKeywords="+moment(today).format('YYYYMMDD 00:00:00.000000') +"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=GT"+"&conditions=AND"
+		issuRejectDt+="&schColumns=issuRejectDt"+"&schKeywords="+moment(tomorrow).format('YYYYMMDD 23:59:59.000999') +"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=LT"+"&conditions=AND"
+		$.ajax({
+			url : global.apiUrl+"/elctrnDsnfCerfins/countBy?"+issuRejectDt,
+			type: "GET",
+			cache: false,
+			dataType: "json",
+			success: function(data){
+				$("#cutRejectDt").html(data.page.totalElements)
+			}
+		})
+		tableList();
+
+		var $btnDLtoExcel = $('#DLtoExcel');
+		$btnDLtoExcel.on('click', function () {
+			getExcelData();
+
+			$("#dvjson").excelexportjs({
+					containerid: "dvjson"
+					, datatype: 'json'
+					, dataset: excelData
+					, columns: getColumns(excelData)
+					, fileName : "전자소독필증 목록.xls"     
+			});
+
+		});
+
+	});
+	//tableList function 
+	function tableList(){
+		let filter = "";
+		let sum = "";
+		if(getLocalStorage != null){
+			if(getLocalStorage.orgId !=null || getLocalStorage.orgId !=undefined){
+				/* 거점소독시설명 출력 */
+				filter += "&schColumns=issuDsnfFcltyId"+"&schKeywords="+getLocalStorage.orgId+"&columnTypes=STRING"+"&columnFormats="+"&comparisonOperators=EQ"+"&conditions=AND"; 
+			}
+		}
+
+		/* status 삭제 아닌것만 출력 */
+		filter += "&schColumns=status"+"&schKeywords=DELETE"+"&columnTypes=com.kware.dis.jpa.dis.domain.ElctrnDsnfCerfin$Status"+"&columnFormats="+"&comparisonOperators=NEQ"+"&conditions=AND"; 
+
+		/* 기간 검색 발급승인이력 기준 이상 */
+		if($('#datepickerStart').val() != ""){
+			filter+="&schColumns=issuDt"+"&schKeywords="+ moment($('#datepickerStart').val()).format('YYYYMMDD 00:00:00.000000') +"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=GT"+"&conditions=AND"
+		}
+		/* 기간 검색 발급승인이력 기준 이하 */
+		if($('#datepickerEnd').val() != ""){ 
+			filter+="&schColumns=issuDt"+"&schKeywords="+ moment($('#datepickerEnd').val()).format('YYYYMMDD 00:00:00.000000') +"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=LT"+"&conditions=AND"
+		}
+		/* 지역검색 */
+		if($('#area').val() != ""){
+			filter+="&schColumns=area"+"&schKeywords="+ $('#area').val()+"&columnTypes=com.kware.dis.jpa.dis.domain.ElctrnDsnfCerfin$Area"+"&columnFormats="+"&comparisonOperators=EQ"+"&conditions=AND"
+		}
+		/* 차량유형 검색 */
+		if($('#carCl').val() != ""){
+			filter+="&schColumns=carCl"+"&schKeywords="+ $('#carCl').val()+"&columnTypes=com.kware.dis.jpa.dis.domain.Car$CarCl"+"&columnFormats="+"&comparisonOperators=EQ"+"&conditions=AND"
+		}
+		/* 거점소독시설 검색 */
+		if($('#fcltyNm').val() != ""){
+			filter+="&schColumns=fcltyNm"+"&schKeywords="+ $('#fcltyNm').val()+"&columnTypes=STRING"+"&columnFormats="+"&comparisonOperators=LK"+"&conditions=AND"
+		}
+
+		table = $('#tableList').DataTable({
+			//옵션
+			"searching": false,
+			"pagingType" : "full_numbers",
+			"info" : true,
+			"paging": true,
+			"serverSide":true,
+			"ordering" : true,
+			"order": [[ 0, "desc" ] ],
+			//언어설정
+			"language": 
+			{   //"현재_START_ - _END_ / _TOTAL_개",
+				"info": " _TOTAL_개/총개",
+				"emptyTable" : "데이터가 존재하지 않습니다.",
+				"sLengthMenu": "",
+				"paginate": {
+					"first": "맨앞",
+					"next": "다음",
+					"previous": "이전",
+					"last": "맨끝"
+				}
+			},
+			"ajax": {
+				"type" : "GET",
+				"url" : global.apiUrl+"/elctrnDsnfCerfins/estnSearch?"+filter+sum,
+				"data" : function(data){	
+					let page = "";
+					let sort = "";
+					page = "&page=" + parseInt(data.start/10);
+					sort = "&sort=" + "id,desc"
+					if(data.order[0].dir == 'asc'){
+						sort = "&sort=" + "id,asc"
+					}
+					if(data.order[0].dir == 'desc') {
+						sort = "&sort=" + "id,desc"
+					}
+					draw = data.draw
+					let sum = page + sort
+					return sum
+				},
+				//data 명 바꾸기.
+				'dataFilter': function(retData) {     
+					//console.log("check2",$('#tableList tr th').attr('aria-sort'));   
+					retData = JSON.parse(retData);  
+					if(draw ==1){
+						retData["recordsTotal"] = retData.page.totalElements;
+						totalPage = retData.page.totalElements;
+					}
+					retData["recordsTotal"] = totalPage;
+					retData["recordsFiltered"] =  retData.page.totalElements;
+					retData["data"] =retData._embedded.elctrnDsnfCerfins;
+					
+					return JSON.stringify(retData);
+				},
+				columnDefs: [
+					{ id: 'No', targets: 0 },
+					
+				],
+				complete:function(data){
+					//console.log($('#tableList tr th').attr('aria-sort'));
+					document.getElementById('tableList_info').innerHTML=data.responseJSON.recordsFiltered+"개/총"+data.responseJSON.recordsTotal+"개"
+				}
+			},
+			"columns": [
+				{targets: 0, data: "id" },			//번호
+				{targets: 1, data: "area" },		//지역
+				{
+					targets: 2, 					//거점소독시설명
+					data: "fcltyNm", 
+					render : function(data,type,row){
+						//<a id="" class="btn btn-info" role="button" href="' + "/" + row.Link + '" target="_blank">click </a>
+						return '<a class="btn btn-info" href="disinfectionView.html?id='+row.id+'">'+data+'</a>'
+					} 
+				},		
+				{targets: 3, data: "strtpnt"},		//출발지
+				{targets: 4, data: "dstn" },		//도착지	
+				{targets: 5, data: "carCl" },		//차량유형
+				{targets: 6, data: "drverNm" },	//운전자명
+				{targets: 7, data: "carNo" },		//차량번호
+				{
+					targets: 8,
+					data: "issuDt",
+					render : function(data,type,row){
+						if(data == null){
+							data = "-";
+						}else{
+							data = moment(data).format('YYYY-MM-DD');
+						}
+						return data;
+					}
+				},//발급승인이력(Timestamp) 
+				{
+					targets: 9, data: "issuRejectDt",
+					render : function(data,type,row){
+						if(data == null){
+							data = "-";
+						}else{
+							data = moment(data).format('YYYY-MM-DD');
+						}
+						return data;
+					}
+
+				},//발급거절이력(Timestamp)
+			],
+			/* <tr onclick="location.href='disinfectionView.html'"> */
+			//cell 데이터 변경
+			"columnDefs":[
+				{
+					"render": function (data,type,row){
+						return carClareaTranslation(data);
+					},
+					"targets" : 5
+				},
+				{
+					"render": function (data,type,row){
+
+						//areaSelect(data) 공통영역에서 지역 한글로 변경함.
+						return areaTranslation(data);
+					},
+					"targets" : 1
+				},
+			],
+			"dom":"lfrtBip",
+			"buttons": [{
+				
+			}],
+		});  
+	};
+
+	function searchFunction(){
+		//DataTable 초기화. 
+		$('#tableList').DataTable().destroy();
+		//DataTable 호출
+		tableList();
+	}
+	$('#tableList').on('click', 'tr', function () {
+		var data = table.row( this ).data();
+		if(data != undefined){
+			window.location.href="disinfectionView.html?id="+data.id;
+		}
+	});
+	
+	function getExcelData(){
+		$.ajax({
+			type: "GET",
+			url: global.apiUrl+"/elctrnDsnfCerfins/estnSearch?"+filter+"&size=2147483647",
+			async: false,
+			contentType: "application/json",
+			success: function(data){
+				excelData=data._embedded.elctrnDsnfCerfins;
+			},
+			error: function (request, status, error){
+				alert("오류가 발생했습니다.")
+				console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error)
+			},
+			complete: function(data){
+			}
+		})
+	}
+</script>
+

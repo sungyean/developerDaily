@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>거점소독시설</title>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="../assets/js/custom.js"></script>
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<script type="text/javascript" src="../../assets/js/confirmModal.js"></script>
+	<script type="text/javascript" src="../../assets/js/searchModal.js"></script>
+	<!-- Data format 시작 -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+	<!-- sessionChk -->
+	<script type="text/javascript" src="../../assets/js/sessionChk.js"></script>
+	<script type="text/javascript">
+
+		var loginUserSeq = getSigninAccount().seq;	//로그인 유저 seq
+		var loginAccountId = getSigninAccount().accountId;	//로그인 유저 accountId
+		var orgId = getSigninAccount().orgId;		//로그인 한 유저의 orgId
+		var tempSampleApplicationList;
+		var sampleApplicationList;
+
+		//페이징 처리
+		var CurrentPage = 0;			//현재 페이지
+		var CountPerPage = 10;			//페이지 당 갯수
+		var Total = 0;					//총 갯수
+
+		//url
+		var defaultUrl=global.apiUrl+"/elctrnDsnfCerfins/estnSearch?" +
+					getEstnUrl("issuDsnfFcltyId", orgId ,"NUMBER", "EQ") + 
+					getEstnUrl("status","REQST","com.kware.dis.jpa.dis.domain.ElctrnDsnfCerfin$Status","EQ") +
+					"&sort=id,desc";
+
+		var filter ="";
+
+		$(document).ready(function() {
+			//session Check localStorage에 accountId 없을 경우 login Page로 이동
+			sessionChk();
+			/* 신청서 샘플 */
+			tempSampleApplicationList = $('.sampleApplicationList');
+			sampleApplicationList = tempSampleApplicationList.clone();
+			tempSampleApplicationList.css("display", "none");
+
+			getTotalPage(defaultUrl);
+
+			getElctrnDsnfCerfins(defaultUrl);
+			const searchBox =document.getElementById('searchKeyword');
+			//const searchBox =document.querySelector('input[type="search"]');
+			$('#searchKeyword').focus(function() {
+				makeSearchModal(searchBox, findElctrnDsnfCerfinBySearch)
+			})
+			
+		});
+
+		function getElctrnDsnfCerfins(url) {
+			var page=countPage()
+			if(page=='MAX') {
+			} else {
+				var url = url+page;
+				$.ajax({
+					type: 'GET',
+					url: url,
+					async: false,
+					contentType: "application/json",
+					dataType: 'json',
+					success: function (res) {
+						if(res._embedded.elctrnDsnfCerfins.length==0) {
+							$("#disinfectionRequestList").append("데이터가 없습니다.")
+						} else {
+							res._embedded.elctrnDsnfCerfins.forEach(function(item, index, array){
+								var tempSampleApplicationList = sampleApplicationList.clone();
+
+								tempSampleApplicationList[0].children[0].setAttribute("href","certificate.html?seq="+item.id) /// A태그에 href 추가
+								tempSampleApplicationList[0].children[0].children[0].children[0].innerText=item.carNo;//차량번호
+								tempSampleApplicationList[0].children[0].children[0].children[1].innerText=moment(item.registDt).format('YYYY-MM-DD HH:mm:ss');//신청일자
+								tempSampleApplicationList[0].children[0].children[1].children[0].children[0].children[1].innerText=item.strtpnt;//출발지
+								tempSampleApplicationList[0].children[0].children[1].children[0].children[1].children[1].innerText=item.dstn;//도착지
+								tempSampleApplicationList[0].children[0].children[1].children[0].children[2].children[1].innerText=item.visitPurps;//방문목적
+
+								tempSampleApplicationList[0].children[1].children[0].setAttribute('onclick', "makeConfirmModal('발급을 거절하시겠습니까?', 'certificateDeny("+item.id+")');")
+								tempSampleApplicationList[0].children[1].children[1].setAttribute('onclick', "makeConfirmModal('발급을 승인하시겠습니까?', 'certificate("+item.id+")');")
+							
+								$("#disinfectionRequestList").append(tempSampleApplicationList);
+							})
+						}
+					},
+					complete: function (res) {
+						//window.location.href="./disinfectionList.html"
+					},
+					error: function(err) {
+						//alert("실패");
+					}
+				});
+			}
+
+		}
+		
+		//발급 승인시 이벤트 함수
+		function certificate(id){
+
+			$.ajax({
+				type: 'PUT',
+				url: global.apiUrl+"/elctrnDsnfCerfins/"+id+"/issue",
+				async: false,
+				contentType: "application/json",
+				//data : JSON.stringify({"issuerAd" : {"seq" : loginUserSeq}}),
+				data : JSON.stringify({"issuerAd" : {"accountId" : loginAccountId}}),
+				dataType: 'json',
+				success: function (res) {
+					alert("전자소독필증이 발급되었습니다.")
+				},
+				complete: function (res) {
+					window.location.href="certificate.html?seq="+id
+				},
+				error: function(err) {
+					alert("실패");
+				}
+			});
+		}
+		
+		//발급 거절시 이벤트 함수
+		function certificateDeny(id){
+
+			$.ajax({
+				type: 'PUT',
+				url: global.apiUrl+"/elctrnDsnfCerfins/"+id+"/update",
+				async: false,
+				contentType: "application/json",
+				dataType: 'json',
+				data : JSON.stringify({"status" : "ISSU_REJECT"}),
+				success: function (res) {
+					console.log(res);
+					alert("전자소독필증 발급이 거절되었습니다.")
+				}, 
+				complete: function (res) {
+					location.reload(true);
+				},
+				error: function(err) {
+					alert("실패");
+				}
+			});
+		}
+
+		//방문목적 검색 함수
+		var findElctrnDsnfCerfinBySearch =  function (name) {
+			$("#disinfectionRequestList").empty();
+			//페이징 초기화
+			CurrentPage = 0;			//현재 페이지
+			Total = 0;					//발급승인목록 총 갯수
+			filter = getEstnUrl("visitPurps", $('#searchKeyword').val(), "String", "LK");
+
+			getTotalPage(defaultUrl+filter);
+
+			getElctrnDsnfCerfins(defaultUrl+filter);
+
+			// 최근검색어 저장 
+			if($('#searchKeyword').val()!=null&&$('#searchKeyword').val()!="") {
+				if(localStorage.getItem("disinfectionFcltyHomeRecentSearchKeyword")==null){
+					var temp = [{item1: "", item2: "", item3: "", item4: "", item5: ""}];
+					localStorage.setItem("disinfectionFcltyHomeRecentSearchKeyword", JSON.stringify(temp))
+				}
+				var disinfectionFcltyHomeRecentSearchKeyword = JSON.parse(localStorage.getItem("disinfectionFcltyHomeRecentSearchKeyword"));
+				disinfectionFcltyHomeRecentSearchKeyword[0].item5=disinfectionFcltyHomeRecentSearchKeyword[0].item4;
+				disinfectionFcltyHomeRecentSearchKeyword[0].item4=disinfectionFcltyHomeRecentSearchKeyword[0].item3;
+				disinfectionFcltyHomeRecentSearchKeyword[0].item3=disinfectionFcltyHomeRecentSearchKeyword[0].item2;
+				disinfectionFcltyHomeRecentSearchKeyword[0].item2=disinfectionFcltyHomeRecentSearchKeyword[0].item1;
+				disinfectionFcltyHomeRecentSearchKeyword[0].item1=$('#searchKeyword').val()
+
+				localStorage.setItem("disinfectionFcltyHomeRecentSearchKeyword", JSON.stringify(disinfectionFcltyHomeRecentSearchKeyword));
+			}
+			
+		}
+		
+		$(window).scroll(function () {
+			if($(window).scrollTop()-1 < $(document).height() - $(window).height() && $(window).scrollTop()+1 > $(document).height() - $(window).height()) {
+				getElctrnDsnfCerfins(defaultUrl+filter)
+			}
+		});
+
+		function countPage() {
+			var pageUrl;
+			if ( Total==0 ) {
+				pageUrl="MAX";
+			} else if( Total > CurrentPage*CountPerPage) {
+				pageUrl="&page="+CurrentPage+"&size=10";
+				CurrentPage++;
+			} else if ( Total <= CurrentPage*CountPerPage ) {
+				pageUrl="MAX";
+			}
+			return pageUrl;
+		}
+
+		function getTotalPage(url) {
+			$.ajax({
+				type: 'GET',
+				url: url,
+				async: false,
+				contentType: "application/json",
+				dataType: 'json',
+				success: function (res) {
+					Total=res.page.totalElements;
+				}, 
+				complete: function (res) {
+					//window.location.href="./disinfectionList.html"
+				},
+				error: function(err) {
+					//alert("실패");
+				}
+			});
+		}
+	</script>
+</head>
+<body>
+	<div class="home user2 bg-gray" id="wrap">
+		<!-- header -->
+		<header class="user2">
+			<div class="title-box">
+				<h1>전자소독필증 발급신청 목록</h1>
+			</div>
+			<div class="input-box search">
+				<input type="text" id="searchKeyword" placeholder=" 방문목적을 입력하세요.">
+				<button class="btn-search"><img src="../assets/images/btn-search-u2.png" alt="serach"></button>
+			</div>
+		</header>
+		<!-- //header -->
+		<div class="container">            
+		<!-- list-card -->
+		<div class="list-wrap user1">
+			<h2><em class="color-u2" id="disinfectionFacilityNm"><!-- 거점소독시설명 --></em> 신청서 목록</h2>
+			<div class="list-box user2">
+				<ul class="list-card" id="disinfectionRequestList">
+				
+					<li class="sampleApplicationList">
+						<a href="#">
+							<div class="top-box">
+								<p class="tit">페이지 로딩중...</p>
+								<p class="date">20200702 12:12</p>
+							</div>
+							<div class="bottom-box">
+								<ul>
+									<li>
+										<span class="left-tt">출발지</span>
+										<span class="right-tt">양양거점소독시설</span>
+									</li>
+									<li>
+										<span class="left-tt">도착지</span>
+										<span class="right-tt">양양거점소독시설</span>
+									</li>
+									<li>
+										<span class="left-tt">방문목적</span>
+										<span class="right-tt">사료운반</span>
+									</li>
+								</ul>
+							</div>      
+						</a>
+						<div class="btn-wrap double">
+							<button class="btn bg-gray md btn-map" onclick="certificateDeny()">발급거절</button>
+							<button class="btn bg-mint md btn-apply" onclick="certificate()">발급승인</button>
+						</div>
+						
+					</li>
+				</ul>
+			</div>
+		</div>
+		<!-- //list-card -->
+		</div>
+	</div>
+</body>
+</html>

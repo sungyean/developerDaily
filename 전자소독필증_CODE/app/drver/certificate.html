@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>거점소독시설</title>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="../assets/js/custom.js"></script>
+	<!-- 공통 js -->
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<!-- Data format-->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+	
+	<script type="text/javascript">
+		let seq = getParameter("seq");
+		$(document).ready(function () {
+			/* step0 소독시설에서 지역, 시설이름 가지고 오기. */
+			$.ajax({
+				url: global.apiUrl + "/elctrnDsnfCerfins/" + seq,
+				type: "GET",
+				cache: false,
+				dataType: "json",
+				success: function (data) {
+					if(data.status=="REQST") {
+						document.getElementById('h1').innerHTML="신청서 보기"
+						document.getElementById('title').innerHTML="신청서 내역"
+						$('#GS1CodeLink').parent().remove();
+						$('#btn_ok').css('width', '100%');
+						$('#confirmer').remove();
+					}
+					$("#GS1code").html(data.gs1Code);
+					$("#reqstDt").html(moment(data.reqstDt).format('YYYY-MM-DD HH:mm:ss'));
+					/* 발급 일시 */
+					if(data.issuDt == null){
+						$("#issuDt").html('-');
+					}else{
+						$("#issuDt").html(moment(data.issuDt).format('YYYY-MM-DD HH:mm:ss'));
+					}
+					$("#drverNm").html(data.drverNm);
+					$("#carNo").html(data.carNo);
+					$("#carCl").html(carClareaTranslation(data.carCl));
+					$("#carTy").html(data.carTy);
+					$("#mxmmLdadngQy").html(data.mxmmLdadngQy+"톤");
+					$("#strtpnt").html(data.strtpnt);
+					$("#dstn").html(data.dstn);
+					$("#visitPurps").html(data.visitPurps);
+					$("#GS1CodeImg").attr("src",data.gs1PathM);
+					$("#GS1CodeLink").attr("href",data.gs1PathL);
+					/* 확인자 */
+				/* 	$.ajax({
+						url: data._links.cnfrmr.href,
+						type: "GET",
+						cache: false,
+						dataType: "json",
+						success: function (data) {
+							$("#name").html(data.beaconUserNm)
+							$("#telno").html(data.beaconUserMbtlnum)
+							$.ajax({
+								url : data._links.workCmStkrsFcltyInfoM.href,
+								type: "GET",
+								cache: false,
+								dataType: "json",
+								success: function (data) {
+										$("#farmNm").html(data.farmNm);
+									}
+								})
+						}
+					}) */
+				} //소독시설 API success
+			})
+		});
+		function back(){
+			window.history.back();
+		}
+		function mylistMove(){
+			window.location.href="mylist.html";
+		}
+	</script>
+</head>
+<body>
+	<div class="certificate user1 bg-gray" id="wrap">
+		<!-- header -->
+		<header class="user1">
+			<div class="title-box">
+				<button class="btn-back" onclick="back();">
+					<img src="../assets/images/btn-back.png" alt="back">
+				</button>
+				<h1 id="h1">전자소독필증 보기</h1>
+			</div>
+		</header>
+		<!-- //header -->
+		<!-- bill -->
+		<div class="container bill user1 pd-yes"> 
+			<div class="bill-header">
+				<p class="tit" id="title">전자소독필증 내역</p>
+				<p class="code-num" id="GS1code"></p>
+			</div>
+			<div class="bill-subheader">
+				<ul>
+					<li>
+						<span class="t1">신청일자</span>
+						<span class="t2" id="reqstDt"></span>
+					</li>
+					<li>
+						<span class="t1">발급일자</span>
+						<span class="t2" id="issuDt"></span>
+					</li>
+				</ul>
+			</div>
+			<div class="bill-con">
+				<div class="item item1">
+					<p class="tit">기본정보</p>
+					<ul>
+						<li>
+							<span class="t1">운전자명</span>
+							<span class="t2" id="drverNm"></span>
+						</li>
+						<li>
+							<span class="t1">차량번호</span>
+							<span class="t2" id="carNo"></span>
+						</li>
+						<li>
+							<span class="t1">차량분류</span>
+							<span class="t2" id="carCl"></span>
+						</li>
+						<li>
+							<span class="t1">차종명</span>
+							<span class="t2" id="carTy"></span>
+						</li>
+						<li>
+							<span class="t1">최대적재량</span>
+							<span class="t2" id="mxmmLdadngQy"></span>
+						</li>
+					</ul>
+				</div>
+				<div class="item item2">
+					<p class="tit">추가정보</p>
+					<ul>
+						<li>
+							<span class="t1">출발지</span>
+							<span class="t2" id="strtpnt"></span>
+						</li>
+						<li>
+							<span class="t1">도착지</span>
+							<span class="t2" id="dstn"></span>
+						</li>
+						<li>
+							<span class="t1">방문목적</span>
+							<span class="t2" id="visitPurps"></span>
+						</li>
+					</ul>
+				</div>
+			<!-- 	<div class="item item3" id="confirmer">
+					<p class="tit">확인자</p>
+					<ul>
+						<li>
+							<span class="t1">시설 명</span>
+							<span class="t2" id="farmNm"></span>
+						</li>
+						<li>
+							<span class="t1">근무자 명</span>
+							<span class="t2" id="name"></span>
+						</li>
+						<li>
+							<span class="t1">연락처</span>
+							<span class="t2" id="telno"></span>
+						</li>
+					</ul>
+				</div> -->
+			</div>
+			<div class="barcode-box">
+				<img id="GS1CodeImg"  alt="">
+			</div>
+			<div class="bill-footer">
+				<button class="btn border-green btn-download"><a id="GS1CodeLink"><img src="../assets/images/icon-download.png" alt="download"></a></button>
+				<button class="btn bg-green btn-ok" onclick="mylistMove();" id="btn_ok">확인</button>
+			</div>
+		</div>
+		<!-- //bill -->
+	</div>
+</body>
+</html>

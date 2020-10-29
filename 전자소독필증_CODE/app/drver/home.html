@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>운전자</title>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="../assets/js/custom.js"></script>
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<script type="text/javascript" src="../../assets/js/searchModal.js"></script>
+	<!-- sessionChk -->
+	<script type="text/javascript" src="../../assets/js/sessionChk.js"></script>
+	<script type="text/javascript">
+		
+		var loginUserId = getSigninAccount().accountId;
+		let removeToast;
+		var likedCmDsnfFcltyList = new Array();
+		$(document).ready(function() {
+			sessionChk();
+			$.ajax({ 
+				type: 'GET',
+				url: global.apiUrl+"/pweBeaconUserDetails/search/findLikedCmDsnfFcltyByBeaconUserId?beaconUserId="+loginUserId+"&page=0&size=5&sort=id&id.dir=asc",
+				async: false,
+				contentType: "application/json",
+				dataType: 'json',
+				success: function (res) {
+					
+					if(res.page.totalElements!=0){
+						var list = makeFavoriteFacilitiesList(res);
+						$('#favoriteFacilities').append(list);
+					}
+				}, 
+				complete: function (res) {
+					//window.location.href="./disinfectionList.html"
+				},
+				error: function(err) {
+					//alert("실패");
+				}
+			});
+			const searchBox =document.getElementById('searchKeyword');
+			//const searchBox =document.querySelector('input[type="search"]');
+			$('#searchKeyword').focus(function() {
+				makeCarSearchModal(searchBox, findDisinfectionFacltyBySearch);
+			})
+
+		});
+
+		function makeFavoriteFacilitiesList(resData) {
+			var list = "";
+			resData._embedded.cmDsnfFclties.forEach(function(item, index, array){
+				likedCmDsnfFcltyList.push(item.id);
+				list += "<li>";
+				list += "<button class='btn-heart' onclick='removeLikedCmDsnfFclty("+item.id+")'>";
+				list += "<img src='../assets/images/btn-starSelected.png' alt='favorite'>";
+				list += "</button>";
+				list += "<p class='tit'>"+item.nm+"</p>";
+				list += "<p class='txt'>"+item.rnAdres1+" "+item.adres2+"</p>";
+				list += "<div class='btn-wrap double'>";
+				list += "<button class='btn bg-gray md btn-map' onclick='location.href=`map.html?id="+item.id+"`'>지도보기</button>";
+				list += "<button class='btn bg-green md btn-apply' onclick='location.href=`step1.html?seq="+item.id+"`'>전자소독필증 신청하기</button>";
+				list += "</div>";
+				list += "</li>";
+			});
+			return list;
+		}
+
+		function makeSearchFacilitiesList(resData,userType) {
+			console.log("resData",resData)
+			var list = "";
+			//거점소독시설일 경우
+			if (userType == "POSITN_DSNF_FCLTY_MNGR") {
+				resData._embedded.cmDsnfFclties.forEach(function(item, index, array){
+					list += "<li>";
+					list += "<button class='btn-heart' onclick='toast(`즐겨찾기에 추가되었습니다.`, "+item.id+")'>";
+					list += "<img src='../assets/images/btn-star.png' alt='favorite'>";
+					list += "</button>";
+					list += "<p class='tit'>"+item.nm+"</p>";
+					list += "<p class='txt'>"+item.rnAdres1+" "+item.adres2+"</p>";
+					list += "<div class='btn-wrap double'>";
+					list += "<button class='btn bg-gray md btn-map' onclick='location.href=`map.html?id="+item.id+"`'>지도보기</button>";
+					list += "<button class='btn bg-green md btn-apply' onclick='location.href=`step1.html?seq="+item.id+"`'>전자소독필증 신청하기</button>";
+					list += "</div>";
+					list += "</li>";
+				});
+				return list;
+			}else{
+				resData._embedded.cmFarmInfoSl.forEach(function(item, index, array){
+					console.log("item",item)
+					list += "<li>";
+					/* 
+					시설일 경우에 즐겨찾기 추가 하지 않음.
+					list += "<button class='btn-heart' onclick='toast(`즐겨찾기에 추가되었습니다.`, "+item.id+")'>";
+					list += "<img src='../assets/images/btn-star.png' alt='favorite'>";
+					list += "</button>"; */
+					list += "<p class='tit'>"+item.nm+"</p>";
+					list += "<p class='txt'>"+item.rnAdres1+" "+item.adres2+"</p>";
+					list += "<div class='btn-wrap double'>";
+					list += "<button class='btn bg-gray md btn-map' onclick='location.href=`map.html?id="+item.farmNo+"`'>지도보기</button>";
+					list += "<button class='btn bg-green md btn-apply' onclick='location.href=`step1.html?farmNo="+item.farmNo+"`'>전자소독필증 신청하기</button>";
+					list += "</div>";
+					list += "</li>";
+				});
+				return list;
+
+			}
+		}
+		var findDisinfectionFacltyBySearch =  function (name, userType) {
+			//var filter = getEstnUrl("nm", $('#searchKeyword').val(),"String","LK");
+			// selectBox가 거점소독시설 검색일 경우에 
+			if(userType =="POSITN_DSNF_FCLTY_MNGR"){
+				$.ajax({
+					type: 'GET',
+					//url: global.apiUrl+"/cmDsnfFclties/estnSearch?"+filter,
+					url: global.apiUrl+"/cmDsnfFclties/search/findAvailableCmDsnfFclty?keyword="+$('#searchKeyword').val(),
+					async: false,
+					contentType: "application/json",
+					dataType: 'json',
+					success: function (res) {
+						$('#containerList').empty();;
+						var list = "<h2>검색 결과</h2>";
+							list += "<div class='list-box user1'>";
+							list += "<ul class='list-card'>";        
+							list += makeSearchFacilitiesList(res,userType);
+							list += "</ul>";
+							list += "</div>";
+						$('#containerList').append(list); 
+					}, 
+					complete: function (res) {
+						//window.location.href="./disinfectionList.html"
+					},
+					error: function(err) {
+						//alert("실패");
+					}
+				});
+			}else{//시설 농장일 경우에 url: global.apiUrl+"/cmFarmInfoSl/estnSearch?"+filter+"&size=9999&sort=farmNm%2Casc",
+				$.ajax({
+					type: 'GET',
+					url: global.apiUrl+"/cmFarmInfoSl/estnSearch?"+name+"&size=9999&sort=farmNm%2Casc",
+					async: false,
+					contentType: "application/json",
+					dataType: 'json',
+					success: function (res) {
+						$('#containerList').empty();;
+						var list = "<h2>검색 결과</h2>";
+							list += "<div class='list-box user1'>";
+							list += "<ul class='list-card'>";
+							list += makeSearchFacilitiesList(res,userType);
+							list += "</ul>";
+							list += "</div>";
+						$('#containerList').append(list); 
+					}, 
+					complete: function (res) {
+						//window.location.href="./disinfectionList.html"
+					},
+					error: function(err) {
+						//alert("실패");
+					}
+				});
+			}
+			
+			if(localStorage.getItem("drverHomeRecentSearchKeyword")==null) {
+				var temp = [{item1: "", item2: "", item3: "", item4: "", item5: ""}];
+				localStorage.setItem("drverHomeRecentSearchKeyword", JSON.stringify(temp))
+			}
+			var drverHomeRecentSearchKeyword = JSON.parse(localStorage.getItem("drverHomeRecentSearchKeyword"));
+			drverHomeRecentSearchKeyword[0].item5=drverHomeRecentSearchKeyword[0].item4;
+			drverHomeRecentSearchKeyword[0].item4=drverHomeRecentSearchKeyword[0].item3;
+			drverHomeRecentSearchKeyword[0].item3=drverHomeRecentSearchKeyword[0].item2;
+			drverHomeRecentSearchKeyword[0].item2=drverHomeRecentSearchKeyword[0].item1;
+			drverHomeRecentSearchKeyword[0].item1=$('#searchKeyword').val();
+
+			localStorage.setItem("drverHomeRecentSearchKeyword", JSON.stringify(drverHomeRecentSearchKeyword));
+		}
+
+		function toast(string, seq) {
+			const toast = document.getElementById("toast");
+			const addUrl = global.apiUrl+"/cmDsnfFclties/"+seq;
+			if(likedCmDsnfFcltyList.indexOf(seq)==-1) {
+				$.ajax({
+					type: 'POST',
+					url: global.apiUrl+"/pweBeaconUserDetails/"+getSigninAccount().accountId+"/likedCmDsnfFclty",
+					async: false,
+					contentType: "text/uri-list",
+
+					dataType: 'json',
+					data: addUrl,
+					success: function (res) {
+						console.log(res)
+						toast.classList.contains("reveal") ?
+							(clearTimeout(removeToast), removeToast = setTimeout(function () {
+								document.getElementById("toast").classList.remove("reveal")
+							}, 1000)) :
+							removeToast = setTimeout(function () {
+								document.getElementById("toast").classList.remove("reveal")
+							}, 1000)
+						toast.classList.add("reveal"),
+							toast.innerText = string
+					}, 
+					complete: function (res) {
+						//window.location.href="./disinfectionList.html"
+					},
+					error: function(err) {
+						alert("실패");
+					}
+				}) 
+			} else {
+				toast.classList.contains("reveal") ?
+					(clearTimeout(removeToast), removeToast = setTimeout(function () {
+						document.getElementById("toast").classList.remove("reveal")
+					}, 1000)) :
+					removeToast = setTimeout(function () {
+						document.getElementById("toast").classList.remove("reveal")
+					}, 1000)
+				toast.classList.add("reveal"),
+					toast.innerText = "이미 즐겨찾기에 추가된 시설입니다."
+			}
+			
+		}
+
+		function removeLikedCmDsnfFclty(seq) {
+			const toast = document.getElementById("toast");
+			$.ajax({
+				type: 'DELETE',
+				url: global.apiUrl+"/pweBeaconUserDetails/"+getSigninAccount().accountId+"/likedCmDsnfFclty/"+seq+"/remove",
+				async: false,
+				contentType: "accept: */*",
+				dataType: 'json',
+				//data: addUrl,
+				success: function (res) {
+					console.log(res)
+					toast.classList.contains("reveal") ?
+						(clearTimeout(removeToast), removeToast = setTimeout(function () {
+							document.getElementById("toast").classList.remove("reveal")
+						}, 1000)) :
+						removeToast = setTimeout(function () {
+							document.getElementById("toast").classList.remove("reveal")
+						}, 1000)
+					toast.classList.add("reveal"),
+						toast.innerText = "즐겨찾기가 삭제되었습니다."
+				}, 
+				complete: function (res) {
+					//window.location.href="./disinfectionList.html"
+				},
+				error: function(err) {
+				}
+			}) 
+		}
+
+		$(document).ready(function() {
+			$.ajax({
+				type: 'POST',
+				url: global.apiUrl+"/locationHistories/addLocationHistory",
+				async: false,
+				contentType:"application/json",
+				dataType: 'json',
+				data: JSON.stringify({'accountId' : loginUserId,
+						'lo' : 132,
+						'la' : 37}),
+				//data: addUrl,
+				success: function (res) {
+					console.log(res)
+				}, 
+				complete: function (res) {
+					
+				},
+				error: function(err) {
+					
+				}
+			})
+
+		})
+
+		function findNearestDisinfectionFacility() {
+			$.ajax({
+				type: 'GET',
+				url: global.apiUrl+"/echoGET",
+				async: false,
+				contentType: "accept: */*",
+				dataType: 'json',
+				data: {'lon' : 132,
+						'lat' : 37},
+				//data: addUrl,
+				success: function (res) {
+					console.log(res)
+				}, 
+				complete: function (res) {
+					//window.location.href="./disinfectionList.html"
+				},
+				error: function(err) {
+					alert("실패");
+				}
+			})
+		}
+
+	</script>
+	<style>
+		#toast {
+			position: fixed;
+			bottom: 30px;
+			left: 50%;
+			padding: 15px 20px;
+			transform: translate(-50%, 10px);
+			border-radius: 30px;
+			overflow: hidden;
+			font-size: .8rem;
+			opacity: 0;
+			visibility: hidden;
+			transition: opacity .5s, visibility .5s, transform .5s;
+			background: rgba(0, 0, 0, .35);
+			color: #fff;
+			z-index: 10000;
+		}
+
+		#toast.reveal {
+			opacity: 1;
+			visibility: visible;
+			transform: translate(-50%, 0)
+		}
+	</style>
+</head>
+<body>
+	<div class="home user1 bg-gray" id="wrap">
+		<!-- header -->
+		<header class="user1">
+			<div class="title-box">
+				<h1>시설 목록</h1>
+			</div>
+			<div class="input-box search">
+				<input type="text" id="searchKeyword" placeholder="시설명 또는 주소를 입력하세요.">
+				<button class="btn-search" onclick="findDisinfectionFacltyBySearch();"><img src="../assets/images/btn-search-u1.png" alt="serach"></button>
+			</div>
+		</header>
+		<!-- //header -->
+		<div class="container">            
+		<!-- list-card -->
+		<div class="list-wrap user1" id="containerList">
+			<!-- <div class="btn-wrap one">
+				<button type="submit" class="btn bg-blue lg btn-login" onclick="findNearestDisinfectionFacility();">근처 거점소독시설 검색</button>
+			</div> -->
+			<h2>즐겨찾는 거점소독시설 목록</h2>
+			<div class="list-box user1">
+				<ul class="list-card" id="favoriteFacilities">
+					<!-- <li>
+							<button class="btn-heart">
+								<img src="../assets/images/btn-heart.png" alt="favorite">
+							</button>
+						<p class="tit">제주 거점소독시설</p>
+						<p class="txt">경상북도 울릉군 울릉읍 독도리 212-12 </p>
+						<div class="btn-wrap double">
+							<button class="btn bg-gray md btn-map" onclick="location.href='map.html'">지도보기</button>
+							신청서 작성에서 거점소독시설 seq번호 필요하여 임시로 넣어놨습니다.(유성연)
+							<button class="btn bg-green md btn-apply" onclick="location.href='step1.html?seq=24'">전자소독필증 신청하기</button>
+						</div>
+					</li> -->
+				</ul>
+			</div>
+			<!--  8.18 기능 시현을 위해 주석 처리함. 반드시 이후에 기능구현 할 것.
+				<h2>가까운 거점소독시설 목록</h2>
+			<div class="list-box user1">
+				<ul class="list-card">
+					<li>
+							<button class="btn-heart">
+								<img src="../assets/images/btn-heart.png" alt="favorite">
+							</button>
+						<p class="tit">제주 거점소독시설</p>
+						<p class="txt">경상북도 울릉군 울릉읍 독도리 212-12 </p>
+						<div class="btn-wrap double">
+							<button class="btn bg-gray md btn-map" onclick="location.href='map.html'">지도보기</button>
+							<button class="btn bg-green md btn-apply" onclick="location.href='step1.html?seq=24'">전자소독필증 신청하기</button>
+						</div>
+					</li>
+				</ul>
+			</div> 
+			-->
+		</div>
+		<!-- //list-card -->
+		</div>
+	</div>
+	<div id="toast"></div>
+</body>
+</html>

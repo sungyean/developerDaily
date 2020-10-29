@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>거점소독시설</title>
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../assets/js/custom.js"></script>
+</head>
+<body>
+    <div class="car-info bg-gray" id="wrap">
+        <!-- header -->
+        <header class="user1">
+            <div class="title-box">
+                 <h1>회원가입</h1>
+            </div>
+        </header>
+        <!-- //header -->
+        <div class="container pd-yes">
+            <form class="login" action="">
+                <div class="input-box sm">
+                    <label for="carNo">차량번호 <b class="point">*</b></label>
+                    <input type="text" name="carNo" id="carNo" placeholder="차량번호를 입력하세요.">
+                </div>
+                <div class="input-box sm">
+                    <label for="carCl">차량유형 <b class="point">*</b></label>
+                    <select id="carCl" name="carCl" class="" >                    
+                        <option value="" selected="">차량 분류</option>
+                        <option value="LVSTCK_CNVYNC">가축 운반차량</option>
+                        <option value="CDL_CNVYNC">원유 운반차량</option>
+                        <option value="EGG_CNVYNC">알 운반차량</option>
+                        <option value="ANIMAL_MEDCIN_CNVYNC">동물(의)약품 운반차량</option>
+                        <option value="FEED_CNVYNC">사료 운반차량</option>
+                        <option value="BIRD_FEED_CNVYNC">조사료 운반차량</option>
+                        <option value="LVSTCK_EXCRS_CNVYNC">가축분뇨 운반차량</option>
+                        <option value="RICE_CNVYNC">왕겨,쌀겨,톱밥운반차량</option>
+                        <option value="CPT_CNVYNC">퇴비 운반차량</option>
+                        <option value="CLNIC_VHCLE">진료 차량</option>
+                        <option value="PREVNT_INOCL_VHCLE">예방접종 차량</option>
+                        <option value="ARTIF_UPDT_VHCLE">인공수정 차량</option>
+                        <option value="CNSL_VHCLE">컨설팅 차량</option>
+                        <option value="FEED_PICK_VHCLE">사료채취 차량</option>
+                        <option value="DSNFC_VHCLE">방역 차량</option>
+                        <option value="MCHN_REPAIR_VHCLE">기계수리 차량</option>
+                        <option value="DFWS_SHIPMNT_VHCLE">가금출하 차량</option>
+                        <option value="DLVY_VHCLE">배송상하차 차량</option>
+                        <option value="HNF_TRNSP_VHCLE">인력수송 차량</option>
+                        <option value="GNRL_VHCLE">일반 차량</option>
+                        <option value="STKRS_VHCLE">축산 차량</option>
+                        <option value="ETC_VHCLE">기타 차량</option>                   
+                    </select>
+                </div>
+                <div class="input-box sm">
+                    <label for="mxmmLdadngQy">최대적재량 <b class="point">*</b></label>
+                    <input type="text" name="mxmmLdadngQy" id="mxmmLdadngQy" placeholder="아이디">
+                </div>
+                <div class="input-box sm select">
+                    <label for="">소유자 구분 <b class="point">*</b></label>
+                    <select name="" id="">
+                        <option value="">축산차량운전자</option>
+                        <option value="">거점소독시설관리자</option>
+                        <option value="">시설관리자</option>
+                    </select>
+                </div>
+                <div class="input-box sm">
+                    <label for="id">법인명 <b class="point">*</b></label>
+                    <input type="text" name="" id="id" placeholder="아이디">
+                </div>
+                <div class="input-box sm">
+                    <label for="id">사업자등록번호 <b class="point">*</b></label>
+                    <input type="text" name="" id="id" placeholder="아이디">
+                </div>
+                <div class="btn-wrap double">
+                    <button class="btn border-green lg btn-join">취소</button>
+                    <button class="btn bg-green lg btn-join">완료</button>
+                </div>                               
+            </form>
+        </div>
+        
+       
+    </div>
+</body>
+</html>

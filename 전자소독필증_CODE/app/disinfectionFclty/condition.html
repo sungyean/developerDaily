@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>거점소독시설</title>
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../assets/js/custom.js"></script>
+</head>
+<body>
+    <div class="condition user2" id="wrap">
+        <!-- header -->
+        <header class="user2">
+            <button class="btn-back">
+                <img src="../assets/images/btn-back.png" alt="back">
+            </button>
+            <div class="title-box">
+                 <h1>검색조건 설정</h1>
+            </div>
+        </header>
+        <!-- //header -->
+        <div class="container">            
+           <div class="condition-box">
+               <ul class="term-box">
+                   <li><a href="#">1주일</a></li>
+                   <li><a href="#">1개월</a></li>
+                   <li><a href="#">3개월</a></li>
+                   <li><a href="#">6개월</a></li>
+               </ul>
+               <div class="datepiker-box clearfix">
+                   <label for="">
+                        <input type="text" id="datePickerFrom" class="form-control">
+                        <span class="icon"><img src="../assets/images/icon-calender-bk.png" alt="calender"></span>
+                   </label>
+                   <span class="center">~</span>
+                   <label for="">
+                        <input type="text" id="datePickerFrom" class="form-control">
+                        <span class="icon"><img src="../assets/images/icon-calender-bk.png" alt="calender"></span>
+                </label>
+               </div>
+               <ul class="sort-box">
+                   <li><a href="#">최근 내역순</a></li>
+                   <li><a href="#">과거 내역순</a></li>
+               </ul>
+               <div class="input-box search">
+                    <input type="text">
+                    <button class="btn-search"><img src="../assets/images/icon-search-bk.png" alt="serach"></button>
+               </div>
+               <button class="btn-condition-search">조회</button>
+           </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>거점소독시설 관리자 사이트</title>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/fonts.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui-1.11.0.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script src="../assets/js/jquery-ui.min.js"></script>
+	<script src="../assets/js/jquery.mCustomScrollbar.min.js"></script>
+	<script src="../assets/js/custom.js"></script>
+	<!--주소검색 API-->
+	<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+	<!--JQUERY modal-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+	<!-- JQuery validation -->
+	<script type="text/javascript" src="../assets/js/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="../assets/js/additional-methods.min.js"></script>
+	<script type="text/javascript" src="../assets/js/messages_ko.min.js"></script>
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<style>
+		.ui-dilog{
+			top: 10px;
+		}
+	</style>
+</head>
+<body>
+	<div class="header">
+	
+		<!-- TOP SECTION -->
+		<div id="headers"></div>
+		<!-- //TOP SECTION -->
+		<!-- GNB SECTION -->
+		<div id="gnb"></div>
+		<!-- //GNB SECTION -->    
+		<!-- contents -->
+		<div class="contents clearfix" id="contents">
+			<div class="lnb-wrap">
+				<h2 class="lnb-tit"><span>거점소독시설 등록</span></h2>
+				<ul class="lnb-menu">
+					<li>
+						<a href="disinfectionFacilitiesList.html">거점소독시설 현황</a>
+						<ul>
+							<li class="on"><a href="disinfectionFacilitiesAdd.html">거점소독시설 등록</a></li>
+						</ul>
+					</li>                    
+				</ul>
+			</div>
+			
+			<form id="saveDisinfectionFacilities" method="POST" onsubmit="return false;">
+				<div class="contents-inn">
+					<h3 class="page-tit"><span>거점소독시설 등록</span></h3>
+					<input type="hidden" id="ty" name=ty value="DSNF_FCLTY">
+					<div class="tb-wrap Add">
+						<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>거점소독시설 기본정보</h4>
+						<table>                        
+							<tbody>
+								<tr>
+									<th><span class="mark-essential">*</span>거점소독시설 명</th>
+									<td class="condition-input-box">
+										<div class="search-box">
+											<input type="search" id="nm" name="nm" class="condition search">
+										</div>
+									</td> 
+									<th><span class="mark-essential">*</span>운영 상태</th>
+									<td class="condition-input-box">
+										<select id="status" name="status" class="">                    
+											<option value="" selected="">운영상태</option>                    
+											<option value="NRMLT">정상</option>                    
+											<option value="WAIT">대기</option>                    
+											<option value="EMGNC">비상</option>                    
+											<option value="CLS">폐쇄</option>                 
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<th><span class="mark-essential">*</span>지역 정보</th>
+									<td class="condition-input-box">
+										<select id="area" name="area" class="">                    
+											<option value="" selected="">지역선택</option>
+											<option value="SU">서울</option>                    
+											<option value="GG">경기</option>                    
+											<option value="IC">인천</option>                    
+											<option value="BS">부산</option>                    
+											<option value="DG">대구</option>   
+											<option value="GJ">광주</option>                    
+											<option value="DJ">대전</option>                    
+											<option value="US">울산</option>                    
+											<option value="SJ">세종</option>                    
+											<option value="GW">강원</option>    
+											<option value="GN">경남</option>                    
+											<option value="GB">경북</option>                    
+											<option value="JN">전남</option>                    
+											<option value="JNBK">전북</option>                    
+											<option value="CHN">충남</option> 
+											<option value="CB">충북</option> 
+											<option value="JJ">제주</option>                  
+										</select>
+									</td>
+									<th><span class="mark-essential">*</span>주소</th>
+									<td class="condition-input-box">
+										<div class="search-box">
+											지번/도로명 &nbsp;<input type="text" id="rnAdres1" name="rnAdres1" class="condition search"><button class="btn-td-search" onClick="addressModal()">검색</button>
+											<br>상세주소&nbsp;<input type="text" id="adres2" name="adres2" class="condition search">
+											<input type="hidden" id="zip" name="zip">
+											<input type="hidden" id="lmnAdres1" name="lmnAdres1">
+											<input type="hidden" id="userSelectedType" name="userSelectedType">
+										</div>
+									</td> 
+								</tr>
+							</tbody>
+						</table>
+					</div> 
+					<div class="btn-tbView-box">
+						<button type="submit" class="btn-save"><span class="icon-save"><img src="../assets/images/icon-save.png" alt="저장"></span>저장</button>
+						<button type="button" class="btn-list" onclick='gotoList();'><span class="icon-list"><img src="../assets/images/icon-list.png" alt="목록"></span>목록</button> 
+					</div>
+				</div>
+			</form>
+		</div>
+		<!-- //contents -->
+	</div>
+	<!-- 주소검색 dialog div -->
+	<div id="modal_zipAddress" style="width: 500px;"></div>
+</body>
+</html>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#headers").load("../common/headers.html");
+		$("#gnb").load("../common/gnb.html");
+		// 테스트용. 김동석
+		$(document).dblclick(function() {
+			if (location.hostname != "localhost"
+				&& location.hostname != "127.0.0.1") return;
+
+			$('#nm').val('김동석 시설' + getRndString());
+			$('#status').val('NRMLT');
+			$('#area').val('DJ');
+			$('#adres1').val('김동석 주소1 ' + getRndString());
+			$('#adres2').val('김동석 주소2 ' + getRndString());
+		});
+	});	
+	var temp;
+	function addressModal() {
+		var element_wrap = document.getElementById("modal_zipAddress");
+		
+		new daum.Postcode({
+			oncomplete:function(data) {
+				$("#lmnAdres1").val(data.jibunAddress);
+				$('[name=rnAdres1]').val(data.address);
+				$("#zip").val(data.zonecode);
+				//$('[name=adres1]').val(data.address);
+				$("#adres2").focus();
+
+				temp=getLatLon(data.roadAddress);
+			}
+			, onclose:function(state) {
+				$("#modal_zipAddress").dialog("close");
+				
+			} 
+		}).embed(element_wrap); 
+
+		$("#modal_zipAddress").dialog({
+			autoOpen: true,
+			width: "550px",
+			modal: true,
+			show:{
+				effect: "build"
+			}
+		});
+	}
+	
+	$("#saveDisinfectionFacilities").submit(function(){
+		$("#saveDisinfectionFacilities").validate({
+			//validation이 끝난 이후의 submit 직전 추가 작업할 부분
+			submitHandler: function(form, event) {
+				event.preventDefault(); //form 의 submit 을 막고 ajax 로 동작하기 위한 구문
+				var inputRegisterId = document.createElement('input');
+				inputRegisterId.setAttribute("type", "hidden");
+				inputRegisterId.setAttribute("name", "registerId")
+				inputRegisterId.setAttribute("value", getSigninAccount().accountId)
+				form.appendChild(inputRegisterId);
+				var tempArray = $(form).serializeArray();
+				var formData = { }
+				for(i=0; i<tempArray.length; i++){
+					formData[tempArray[i].name] =  tempArray[i].value;
+				}
+				console.log("formData",formData)
+								
+				var f = confirm("시설을 등록하시겠습니까?");
+				if(f){
+					$.ajax({
+						type: "POST",
+						url: global.apiUrl+"/cmDsnfFclties/insert",	// 거점소독시설, 시설(농장) 등록 시 CmDsnfFclty 와 CmStkrsFcltyInfoM 에 pnuCode, pointX, pointY 넣어주기
+						//url: global.apiUrl+"/cmDsnfFclties",
+						async: false,
+						data: JSON.stringify(formData),
+						contentType: "application/json",
+						dataType: 'json',
+						/* complete: function (res) {
+							document.location.href = './disinfectionFacilitiesList.html';
+						}, */
+						success: function (res) {
+							alert("거점소독시설이 등록되었습니다.");
+							document.location.href = './disinfectionFacilitiesList.html';
+						},
+						error: function(err) {
+							alert("실패");
+						}
+					});
+					return false;
+				} else {
+					return false;
+				}
+			},
+			//규칙
+			rules: {
+				adres1: {
+					required : true,
+					minlength : 5,
+					//remote: "/check_id.jsp"
+				},
+				adres2: {
+					required : true,
+					minlength : 3
+				},
+				area: {
+					required : true,
+					//minlength : 3,
+					//equalTo : password
+				},
+				nm: {
+					required : true,
+					minlength : 2
+				},
+				registerId: {
+					required : true,
+					//digits : true // 숫자만 입력
+				},
+				zip: {
+					required : true,
+					minlength : 2
+				},
+				status: {
+					required : true
+				}
+			},
+			//규칙체크 실패시 출력될 메시지
+			messages : {
+				adres1: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				adres2: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다"
+				},
+				area: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				nm: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다"
+				},
+				registerId: {
+					required : "필수로입력하세요",
+				},
+				zip: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				status: {
+					required : "필수로입력하세요"
+				}
+			}
+		});
+	});
+
+	function gotoList() {
+		location.href="./disinfectionFacilitiesList.html";
+	}
+</script>

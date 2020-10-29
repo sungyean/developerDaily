@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>거점소독시설 관리자 사이트</title>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/fonts.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui-1.11.0.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script src="../assets/js/jquery-ui.min.js"></script>
+	<script src="../assets/js/jquery.mCustomScrollbar.min.js"></script>
+	<script src="../assets/js/custom.js"></script>
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<!-- Data format 시작 -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+	<!-- Data format 끝-->
+	<!-- smart popup -->
+	<link rel="stylesheet" href="../assets/css/jquery.smartPop.css">
+	<script type="text/javascript" src="../assets/js/jquery.smartPop.js"></script>
+</head>
+<body>
+	<div class="header">
+	
+		<!-- TOP SECTION -->
+		<div id="headers"></div>
+		<!-- //TOP SECTION -->
+		<!-- GNB SECTION -->
+		<div id="gnb"></div>
+		<!-- //GNB SECTION -->
+		<!-- contents -->
+		<div class="contents clearfix" id="contents">
+			<div class="lnb-wrap">
+				<h2 class="lnb-tit"><span>거점소독시설 관리</span></h2>
+				<ul class="lnb-menu">
+					<li class="on">
+						<a href="disinfectionFacilitiesList.html">거점소독시설 현황</a>
+						<ul>
+							<li><a href="disinfectionFacilitiesAdd.html">거점소독시설 등록</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div class="contents-inn">
+				<h3 class="page-tit"><span>거점소독시설 현황 상세보기</span></h3>
+						   
+				<div class="tb-wrap">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>거점소독시설 기본정보</h4>
+					<input type="hidden" id="facilitiesId" value=""/>
+					<table class="tb-view">                        
+						<tbody>
+							<tr>
+								<th>거점소독시설 명</th>
+								<td id="nm"></td>
+								<th>운영 상태</th>
+								<td id="status"></td>
+							</tr>
+							<tr>
+								<th>지역 정보</th>
+								<td id="area"></td>
+								<th>주소</th>
+								<td id= "adres"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div> 
+				<div class="tb-wrap">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>거점소독시설 담당공무원 정보</h4>
+					<div class="btn-add-wrap">
+						<button class="btn-add" id="selectChrgPbsvnts"><span class="icon-add"><img src="../assets/images/icon-add.png" alt="등록하기"></span>담당공무원 추가</button>
+						<button class="btn-add" onclick="addChrgPbsvnts()"><span class="icon-add"><img src="../assets/images/icon-add.png" alt="등록하기"></span>담당공무원 신규등록</button>
+					</div>
+					<table class="tb-view">   
+						<thead>
+							<th>No</th>
+							<th>소속</th>
+							<th>직급</th>
+							<th>이름</th>
+							<th>ID</th>
+							<th>연락처</th>
+							<th>근무상태</th>
+							<th>가입일</th>
+						</thead>
+						<tbody id="chrgPbsvnts">
+<!-- 							<tr>
+								<td>2</td>
+								<td>지방직</td>
+								<td>8급(실무자)</td>
+								<td>홍길동</td>
+								<td>kim1234</td>
+								<td>010-1234-1234</td>
+								<td>정상</td>
+								<td>2020-07-07 PM 12:07:46</td>
+								<td>2020-07-07 PM 12:07:46</td>
+							</tr> -->
+						</tbody>
+					</table>
+				</div> 
+				<div class="tb-wrap">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>발급승인 / 발급거절 정보</h4>
+					<table class="tb-view">                        
+						<tbody>
+							<tr>
+								<th>발급 승인 이력</th>
+								<td>2020-07-07 PM 12:07:46</td>
+								<th>발급 거절 이력</th>
+								<td class="c-red">2020-07-07 PM 12:07:46</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="btn-tbView-box">
+					<button class="btn-delete" onclick="disinfectionFacilitiesDelete();"><span class="icon-delete"><img src="../assets/images/icon-delete.png" alt="삭제"></span>삭제</button>
+					<button class="btn-save" onclick="disinfectionFacilitiesUpdate();"><span class="icon-save"><img src="../assets/images/icon-save.png" alt="수정" ></span>수정</button>
+					<button class="btn-list" onclick="menuListBack();"><span class="icon-list"><img src="../assets/images/icon-list.png" alt="목록"></span>목록</button>
+				</div>
+			</div>
+		</div>
+		<!-- //contents -->
+	</div>
+</body>
+</html>
+<script>
+	$("#headers").load("../common/headers.html");
+	$("#gnb").load("../common/gnb.html");
+	let id = getParameter("id");
+	$(document).ready(function(){
+		$.ajax({
+			url: global.apiUrl+"/cmDsnfFclties/"+id,
+			type: "GET",
+			cache: false,
+			dataType: "json",
+			
+			success: function(data) {
+				$('#facilitiesId').val(data.id);
+				$('#nm').html(data.nm);
+				//공통영역에서 번역해 가지고 오기.
+				$('#area').html(areaTranslation(data.area));
+				$('#status').html(statusTranslation(data.status));
+				$('#adres').html(data.zip + ") " + data.rnAdres1 +" " + data.adres2);
+
+				//날짜 데이터 포멧
+				let issuDtFomat = "";
+				let issuRejectDtFomat = "";
+				//발급승인이력
+				if(data.issuDt ==null || data.issuDt == ""){
+					issuDtFomat = "-"
+				}else{
+					issuDtFomat = moment(data.issuDt).format('YYYY-MM-DD');
+				}
+				$('#issuDt').html(issuDtFomat);
+				//발급거절이력
+				if(data.issuRejectDt ==null || data.issuRejectDt == ""){
+					issuRejectDtFomat = "-"
+				}else{
+					issuRejectDtFomat = moment(data.issuRejectDt).format('YYYY-MM-DD');
+				}
+				$('#issuRejectDt').html(issuRejectDtFomat);
+
+				if(data.cnfrmrSeq == null || data.cnfrmrSeq == ""){
+					$('#confirmTable').empty();
+					$('#confirmDiv').append("<text style='font-size: 12px;'>방문확인 이력이 존재하지 않아 확인자가 존재하지 않습니다.</text>");
+				}else{
+
+				}
+
+			},   
+			error: function (request, status, error){
+				var msg = "ERROR<br><br>"
+				msg += request.status + "<br>" + request.responseText + "<br>" + error;               
+			}
+			
+		});
+		//담당공무원 list
+		$.ajax({
+			url: global.apiUrl+"/cmDsnfFclties/"+id+"/chrgPbsvnts",
+			type: "GET",
+			cache: false,
+			dataType: "json",
+			
+			success: function(data) {
+				var chrgPbsvnts = data._embedded.accountDetails;
+				var makeChrgPbsvntsHtml = "";
+				for(i=0; i<chrgPbsvnts.length; i++){
+					makeChrgPbsvntsHtml += "<tr><td>" + chrgPbsvnts[i].seq + "</td>";
+					makeChrgPbsvntsHtml += "<td>" + chrgPbsvnts[i].position + "</td>";
+					makeChrgPbsvntsHtml += "<td>" + chrgPbsvnts[i].clsf + "</td>";
+					makeChrgPbsvntsHtml += "<td>" + chrgPbsvnts[i].name + "</td>";
+					makeChrgPbsvntsHtml += "<td>" + chrgPbsvnts[i].accountId + "</td>";
+					makeChrgPbsvntsHtml += "<td>" + chrgPbsvnts[i].mobile + "</td>";
+					makeChrgPbsvntsHtml += "<td>" + chrgPbsvnts[i].isUsable + "</td>";
+					makeChrgPbsvntsHtml += "<td>" + chrgPbsvnts[i].createdAt + "</td>";
+				}
+				document.getElementById('chrgPbsvnts').innerHTML=makeChrgPbsvntsHtml;
+			},   
+			error: function (request, status, error){
+				var msg = "ERROR<br><br>"
+				msg += request.status + "<br>" + request.responseText + "<br>" + error;
+				console.log(msg);
+			}
+		});
+	
+	}); 
+	//목록으로 이동
+	function menuListBack(){
+		window.location.href="disinfectionFacilitiesList.html";
+	}
+	//수정 화면으로 이동
+	function disinfectionFacilitiesUpdate(){
+		window.location.href="disinfectionFacilitiesUpdate.html?id="+id;
+	}
+	
+	//수정 화면으로 이동
+	function addChrgPbsvnts(){
+		window.location.href="../system/systemAdd.html?id="+id;
+	}
+
+	/* 삭제버튼 */
+	function disinfectionFacilitiesDelete(){
+		var f = confirm("삭제하시겠습니까?");
+		let deleteData = {
+			"status" : "DELETE"
+		}
+		if(f){
+			$.ajax({
+				type: 'PUT',
+				url: global.apiUrl+"/cmDsnfFclties/"+id+"/update",
+				async: false,
+				data: JSON.stringify(deleteData),
+				contentType: "application/json",
+				dataType: 'json',
+				success: function (res) {
+					alert("삭제되었습니다.")
+				}, 
+				complete: function (res) {
+					window.location.href="./disinfectionFacilitiesList.html"
+				},
+				error: function(err) {
+					alert("실패");
+				}
+			});
+			return false;
+		} else {
+			return false;
+		}
+
+	}
+
+	$('#selectChrgPbsvnts').click(function() {
+		searchIdPop();
+	}) 
+	
+	function searchIdPop() {
+		var width = 800;
+		var height = 500;
+		var url = './disinfectionIdSerch.html';
+		$.smartPop.open({
+			width: width,
+			height: height,
+		isHeightFix : true,
+			url: url,
+			isScroll : 'yes'
+		});
+	}
+	function setSearchDsfId(userId,userNm,accountTy){
+		
+		var f=confirm("담당 공무원을 추가하시겠습니까?")
+		if(f){
+			$.ajax({
+				type: "PUT",
+				url: global.apiUrl+"/members/update",
+				async: false,
+				contentType: "application/json",
+				dataType: 'json',
+				data: JSON.stringify({"accountId": userId,"accountTy": "POSITN_DSNF_FCLTY_MNGR", // 고정 값
+						"cmDsnfFclty": {
+							"id": parseInt(id) // 거점 소독시설 아이디
+						}}),
+				success: function (res) {
+					alert("담당자가 추가되었습니다.")
+				},
+				complete: function (res) {
+					location.reload();
+				},
+				error: function(err) {
+					alert("실패");
+				}
+			});
+		}
+	}
+</script>

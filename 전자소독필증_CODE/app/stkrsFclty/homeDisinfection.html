@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시설</title>
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../assets/js/custom.js"></script>
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<script type="text/javascript" src="../../assets/js/confirmModal.js"></script>
+	<script type="text/javascript" src="../../assets/js/searchModal.js"></script>
+	<!-- Data format-->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+	<script type="text/javascript">
+		
+		var loginUserId = getSigninAccount().accountId;
+		var loginUserWorkCmStkrsFcltyInfoMId = getSigninAccount().orgId;
+		var defaultUrl = global.apiUrl + "/elctrnDsnfCerfin/estnSearch?&sort=id,desc" + getEstnUrl("issuFarmNo",loginUserWorkCmStkrsFcltyInfoMId,"STRING","EQ") + getEstnUrl("status","REQST", "com.kware.dis.jpa.dis.domain.ElctrnDsnfCerfin$Status","EQ")
+
+		//페이징 처리
+		var CurrentPage = 0;			//현재 페이지
+		var CountPerPage = 10;			//페이지 당 갯수
+		var Total = 0;					//총 갯수
+
+		var filter="";
+
+		var tempSampleIssueList;
+		var sampleIssueList;
+
+		$(document).ready(function() {
+			tempSampleIssueList = $('.sampleApplicationList');
+			sampleIssueList = tempSampleIssueList.clone();
+			tempSampleIssueList.css("display", "none");
+
+			getTotalPage(defaultUrl);
+
+			getDisinfection(defaultUrl);
+			const searchBox =document.getElementById('searchKeyword');
+			//const searchBox =document.querySelector('input[type="search"]');
+			$('#searchKeyword').focus(function() {
+				makeSearchModal(searchBox, findDisinfectionBySearch)
+			})
+			
+		});
+
+		function getDisinfection(url) {
+			var page=countPage();
+			if(page=='MAX') {
+			} else {
+				$.ajax({
+					type: 'GET',
+					url: url+page,
+					async: false,
+					contentType: "application/json",
+					dataType: 'json',
+					success: function (res) {
+						res._embedded.elctrnDsnfCerfin.forEach(function(item, index, array){
+							var tempSampleIssueList = sampleIssueList.clone();
+							tempSampleIssueList[0].children[0].children[0].innerHTML=item.carNo;//차량번호
+							tempSampleIssueList[0].children[0].children[1].innerHTML=moment(item.registDt).format('YYYY-MM-DD HH:mm:ss');
+							tempSampleIssueList[0].children[1].children[0].children[0].children[1].innerText=item.strtpnt;//출발지
+							tempSampleIssueList[0].children[1].children[0].children[1].children[1].innerText=item.dstn;//목적지
+							tempSampleIssueList[0].children[1].children[0].children[2].children[1].innerText=item.visitPurps;//방문목적
+
+							tempSampleIssueList[0].children[2].children[0].setAttribute('onclick', "makeConfirmModal('발급을 거절하시겠습니까?', 'certificateDeny("+item.id+")');")
+							tempSampleIssueList[0].children[2].children[1].setAttribute('onclick', "makeConfirmModal('발급을 승인하시겠습니까?', 'certificate("+item.id+")');")
+
+							$("#issueUl").prepend(tempSampleIssueList);
+						})
+					}, 
+					complete: function (res) {
+						//window.location.href="./disinfectionList.html"
+					},
+					error: function(err) {
+						alert("실패");
+					}
+				});
+			}
+		}
+
+		function findDisinfectionBySearch (name) {
+			$('#issueUl').empty();
+			//페이징 초기화
+			CurrentPage = 0;			//현재 페이지
+			Total = 0;					//총 갯수
+			filter = getEstnUrl("visitPurps", $('#searchKeyword').val(), "String", "LK");
+
+			getTotalPage(defaultUrl+filter);
+			getDisinfection(defaultUrl+filter);
+
+			//최근검색어 로컬스토리지 저장
+			if($('#searchKeyword').val()!=null&&$('#searchKeyword').val()!=""){
+				if(localStorage.getItem("stkrsFcltyHomeDisinfectionRecentSearchKeyword")==null) {
+					var temp = [{item1: "", item2: "", item3: "", item4: "", item5: ""}];
+					localStorage.setItem("stkrsFcltyHomeDisinfectionRecentSearchKeyword", JSON.stringify(temp))
+				}
+				var strksFcltyHomeDisinfectionRecentSearchKeyword = JSON.parse(localStorage.getItem("stkrsFcltyHomeDisinfectionRecentSearchKeyword"));
+				strksFcltyHomeDisinfectionRecentSearchKeyword[0].item5=strksFcltyHomeDisinfectionRecentSearchKeyword[0].item4;
+				strksFcltyHomeDisinfectionRecentSearchKeyword[0].item4=strksFcltyHomeDisinfectionRecentSearchKeyword[0].item3;
+				strksFcltyHomeDisinfectionRecentSearchKeyword[0].item3=strksFcltyHomeDisinfectionRecentSearchKeyword[0].item2;
+				strksFcltyHomeDisinfectionRecentSearchKeyword[0].item2=strksFcltyHomeDisinfectionRecentSearchKeyword[0].item1;
+				strksFcltyHomeDisinfectionRecentSearchKeyword[0].item1=$('#searchKeyword').val()
+
+				localStorage.setItem("stkrsFcltyHomeDisinfectionRecentSearchKeyword", JSON.stringify(strksFcltyHomeDisinfectionRecentSearchKeyword));
+			}
+		}
+		
+		//발급 승인시 이벤트 함수
+		function certificate(id){
+
+			$.ajax({
+				type: 'PUT',
+				url: global.apiUrl+"/elctrnDsnfCerfins/"+id+"/issue",
+				async: false,
+				contentType: "application/json",
+				data : JSON.stringify({"issuerPbud" : {"beaconUserId" : loginUserId}}),
+				dataType: 'json',
+				success: function (res) {
+					alert("전자소독필증이 발급되었습니다.")
+				}, 
+				complete: function (res) {
+					location.reload(true);
+				},
+				error: function(err) {
+					alert("실패");
+				}
+			});
+			
+		}
+
+		//발급 거절시 이벤트 함수
+		function certificateDeny(id){
+
+			$.ajax({
+				type: 'PUT',
+				url: global.apiUrl+"/elctrnDsnfCerfins/"+id+"/issueReject",
+				async: false,
+				contentType: "application/json",
+				dataType: 'json',
+				data : JSON.stringify({"issueRejectorPbud" : {"beaconUserId" : loginUserId}}),
+				success: function (res) {
+					alert("거절되었습니다.")
+				}, 
+				complete: function (res) {
+					location.reload(true);
+				},
+				error: function(err) {
+					alert("실패");
+				}
+			});
+
+		}
+		
+		function getTotalPage(url) {
+			$.ajax({
+				type: 'GET',
+				url: url,
+				async: false,
+				contentType: "application/json",
+				dataType: 'json',
+				success: function (res) {
+					Total=res.page.totalElements;
+				}, 
+				complete: function (res) {
+					//window.location.href="./disinfectionList.html"
+				},
+				error: function(err) {
+					//alert("실패");
+				}
+			});
+		}
+
+		function countPage() {
+			var pageUrl;
+			if ( Total==0 ) {
+				pageUrl="MAX";
+			} else if( Total > CurrentPage*CountPerPage) {
+				pageUrl="&page="+CurrentPage+"&size=10";
+				CurrentPage++;
+			} else if ( Total <= CurrentPage*CountPerPage ) {
+				pageUrl="MAX";
+			}
+			return pageUrl;
+		}
+		
+    </script>
+</head>
+<body>
+    <div class="home user4 bg-gray" id="wrap">
+        <!-- header -->
+        <header class="user4">
+            <div class="title-box">
+                 <h1>소독시설 이용목록</h1>
+            </div>
+            <div class="input-box search">
+                 <input type="text" id="searchKeyword" placeholder="방문목적을 입력하세요.">
+                 <button class="btn-search" onclick="findDisinfectionBySearch();"><img src="../assets/images/btn-search-u4.png" alt="serach"></button>
+             </div>
+        </header>
+        <!-- //header -->
+        <div class="container">            
+           <!-- list-card -->
+           <div class="list-wrap user4">
+               <h2><em class="color-u3">우리농장</em> 소독시설 이용목록</h2>
+               <div class="list-box user4">
+					<ul class="list-card"  id="issueUl">
+                       <li class="sampleApplicationList">
+                            <div class="top-box">
+                                <p class="tit">페이지 로딩중...</p>
+                                <!-- <button class="btn-clean">
+                                    <img src="../assets/images/icon-clean-ok.png" alt="clean">
+								</button> -->
+								<p class="date">2020-08-13 22:11:07</p>
+                            </div>
+                            <div class="bottom-box">
+                                <ul>
+                                    <li>
+                                        <span class="left-tt">출발지</span>
+                                        <span class="right-tt">양양거점소독시설</span>
+                                    </li>
+                                    <li>
+                                        <span class="left-tt">도착지</span>
+                                        <span class="right-tt">양양거점소독시설</span>
+                                    </li>
+                                    <li>
+                                        <span class="left-tt">방문목적</span>
+                                        <span class="right-tt">사료운반</span>
+                                    </li>
+                                </ul>
+                            </div>                           
+                           <div class="btn-wrap double">
+                               <button class="btn bg-gray md btn-map" onclick="location.href='certificate-deny.html'">발급거절</button>
+                               <button class="btn bg-darkblue md btn-apply" onclick="location.href='certificate.html'">발급승인</button>
+                           </div>
+                       </li>
+                   </ul>
+               </div>
+              
+           </div>
+           <!-- //list-card -->
+        </div>
+        <!-- floating btn -->
+        <div class="btn-floating">
+            <a class="bg-blue" href="./homeVisit.html">방문목록 보러가기<img src="../assets/images/btn-floating-back.png" alt="바로가기"></a>
+        </div>
+        
+        <!-- floating btn -->
+    </div>
+</body>
+</html>

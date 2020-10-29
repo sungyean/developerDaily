@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>거점소독시설 관리자 사이트</title>
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/fonts.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui-1.11.0.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script src="../assets/js/jquery-ui.min.js"></script>
+	<script src="../assets/js/jquery.mCustomScrollbar.min.js"></script>
+	<script src="../assets/js/custom.js"></script>
+	<link rel="stylesheet" href="../assets/css/tableData.css">
+	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+	<!-- jquery DataTable script 끝 -->
+	<!-- Data format 시작 -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+	<!-- Data format 끝-->
+</head>
+<body>
+	<div class="header">
+	
+	   <!-- TOP SECTION -->
+		<div id="headers"></div>
+		<!-- //TOP SECTION -->
+		<!-- GNB SECTION -->
+		<div id="gnb"></div>
+		<!-- //GNB SECTION -->
+		<!-- contents -->
+		<div class="contents clearfix" id="contents">
+			<div class="lnb-wrap">
+				<h2 class="lnb-tit"><span>시설 관리</span></h2>
+				<ul class="lnb-menu">
+					<li>
+						<a href="facilitiesList.html">시설 현황</a>
+						<ul>
+							<li><a href="facilitiesAdd.html">시설 등록</a></li>
+						</ul>
+					</li> 
+					<li class="on">
+						<a href="facilitiesVisitList.html">방문 현황</a>
+					</li>                   
+				</ul>
+			</div>
+			<div class="contents-inn">
+				<h3 class="page-tit"><span>방문 현황</span></h3>
+				<div class="search-condition-box clearfix">
+					<!-- <div class="search-condition-tit">검색조건</div> -->
+					<table class="tb-modal-option">
+						<tr>
+							<th>기간 선택</th>
+							<td class="condition-input-box">
+								<div class="input-datepicker-box">
+									<span class="icon-calender"><img src="../assets/images/ico-date.png" alt="날짜 선택" title="날짜 선택"></span>
+									<input type="text" id="datepickerStart" class="input-datepicker">
+								</div>
+								<div class="ico-wave">
+									~
+								</div>
+								<div class="input-datepicker-box">
+									<span class="icon-calender"><img src="../assets/images/ico-date.png" alt="날짜 선택" title="날짜 선택"></span>
+									<input type="text" id="datepickerEnd" class="input-datepicker">
+								</div>
+							</td>
+							<th>시설 분류</th>
+							<td class="condition-input-box">
+								<select id="facilityType" name="" class="">                    
+									<option value="" selected="">시설 선택</option>                    
+									<option value="DisinfectionFacility">거점소독시설</option>                  
+									<option value="AnimalHusbandryFacility">축산시설</option>                  
+									<option value="Farm">농장</option>                  
+									<option value="Etc">기타</option>               
+								</select>
+							</td>                           
+						</tr>
+						<tr>                           
+							<th>운영 상태</th>
+							<td class="condition-input-box">
+								<select id="status" name="" class="">                    
+									<option value="" selected="">운영상태</option>                    
+									<option value="NRMLT">정상</option>                    
+									<option value="WAIT">대기</option>                    
+									<option value="EMGNC">비상</option>                    
+									<option value="CLS">폐쇄</option>                 
+								</select>
+							</td>
+							<th>검색어 입력</th>
+							<td class="condition-input-box">
+								<div class="search-box">
+									<input type="text" class="condition search" id="nm" placeholder="시설명을 입력하세요.">
+								</div>
+							</td> 
+						</tr>
+					</table>  
+					<div class="btn-search-condition-box">
+						<!-- <button class="btn-reset">초기회</button> -->
+						<button class="btn-search" onclick="searchFunction()"><span class="icon-search"><img src="../assets/images/ico-search.png" alt="검색"></span>검색</button>
+					</div>                 
+				</div>               
+				<div class="tb-wrap">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>방문 현황</h4>
+					<div class="btn-add-wrap">
+						<!-- <button class="btn-add" onclick="location.href='facilitiesVisitAdd.html'"><span class="icon-add"><img src="../assets/images/icon-add.png" alt="등록하기"></span>시설 등록하기</button> -->
+					</div>
+					<table class="tb-list" id="tableList">
+						<thead>
+							<tr>
+								<th>No</th>
+								<th>시설 분류</th>
+								<th>시설 명</th>
+								<th>운영상태</th>
+								<th>소유주 명</th>
+								<th>책임자 명</th>
+								<th>시설 등록일</th>
+								<th>방문 이력</th>
+								<th>전자소독필증 발급이력</th>
+							</tr>
+						</thead>
+					</table>
+				</div>              
+			</div>
+		</div>
+		<!-- //contents -->
+	</div>
+</body>
+</html>
+<script>
+	$("#headers").load("../common/headers.html");
+	$("#gnb").load("../common/gnb.html");
+	
+	$.ajax({
+		type: "get",
+		url: "http://localhost:8081/api1.0/visitHistories",
+		async: false,
+		contentType: "aplication/json",
+		dataType: "json",
+		success:function(res) {
+			console.log("성공");
+			console.log(res);
+		},
+		error: function (err) {
+			console.log("실패");
+			console.log(err)
+		},
+		complete: function(res) {
+		}
+	});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	tableList();		
+})
+
+//tableList function 
+	function tableList() {
+		let filter = "";
+		let sum = "";
+		
+		if($('#facilityType').val() != "" && $('#facilityType').val() != null){
+			filter+="&schColumns=facilityType"+"&schKeywords="+ $('#facilityType').val()+"&columnTypes=com.kware.dis.jpa.dis.domain.VisitHistory$FacilityType"+"&columnFormats="+"&comparisonOperators=EQ"+"&conditions=AND"
+		}
+		
+		if($('#status').val() != "" && $('#status').val() != null){
+			filter+="&schColumns=orgStatus"+"&schKeywords="+ $('#status').val()+"&columnTypes=com.kware.dis.jpa.dis.domain.CmDsnfFclty$STATUS"+"&columnFormats="+"&comparisonOperators=EQ"+"&conditions=AND"
+		}
+
+		if($('#nm').val() != "" && $('#nm').val() != null){
+			filter+="&schColumns=dstn"+"&schKeywords="+ $('#nm').val()+"&columnTypes=STRING"+"&columnFormats="+"&comparisonOperators=LK"+"&conditions=AND"
+		}
+		//기간검색 START
+		if($('#datepickerStart').val() != ""){
+			filter+="&schColumns=registDt"+"&schKeywords="+ moment($('#datepickerStart').val()).format('YYYYMMDD 00:00:00.000000')+"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=GT"+"&conditions=AND"
+		}
+		//기간 검색END 
+		if($('#datepickerEnd').val() != ""){
+			filter+="&schColumns=registDt"+"&schKeywords="+ moment($('#datepickerEnd').val()).format('YYYYMMDD 00:00:00.000000')+"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=LT"+"&conditions=AND"
+		}
+		
+		$('#tableList').DataTable({
+		//옵션
+		"searching": false,
+		"pagingType" : "full_numbers",
+		"info" : true,
+		"paging": true,
+		"serverSide":true,
+		"ordering" : true,
+		"order": [[ 0, "desc" ] ],
+		//언어설정
+		"language": 
+		{   //"현재_START_ - _END_ / _TOTAL_개",
+			"info": " _TOTAL_개/총개",
+			"sLengthMenu": "",
+			"paginate": {
+				"first": "맨앞",
+				"next": "다음",
+				"previous": "이전",
+				"last": "맨끝"
+			}
+		},
+		"ajax": {
+			"type" : "GET",
+			"url" : global.apiUrl+"/visitHistories/estnSearch?"+filter+sum,
+			"data" : function(data){
+				console.log(data)
+				let page = "";
+				let sort = "";
+				page = "&page=" + parseInt(data.start/10);
+				sort = "&sort=" + "id,desc"
+				if(data.order[0].dir == 'asc'){
+					sort = "&sort=" + "id,asc"
+				}
+				if(data.order[0].dir == 'desc') {
+					sort = "&sort=" + "id,desc"
+				}
+				draw = data.draw
+				let sum = page + sort
+				return sum
+			},
+			//data 명 바꾸기.
+			'dataFilter': function(retData) {
+				retData = JSON.parse(retData);  
+				if(draw ==1){
+					retData["recordsTotal"] = retData.page.totalElements;
+					totalPage = retData.page.totalElements;
+				}
+				retData["recordsTotal"] = totalPage;
+				retData["recordsFiltered"] =  retData.page.totalElements;
+				retData["data"] =retData._embedded.visitHistories;
+				return JSON.stringify(retData);
+			},
+			complete:function(data){
+				document.getElementById('tableList_info').innerHTML=data.responseJSON.recordsFiltered+"개/총"+data.responseJSON.recordsTotal+"개"
+			}
+		},
+		"columns": [
+			{targets: 0, data: "id" },			//번호
+			{targets: 1, data: "facilityType"},	//유형
+			{
+				targets: 2, 					//시설명
+				data: "dstn", 
+				render : function(data,type,row){
+					//<a id="" class="btn btn-info" role="button" href="' + "/" + row.Link + '" target="_blank">click </a>
+					return '<a class="btn btn-info" href="facilitiesView.html?id='+row.orgId+'">'+data+'</a>'
+				} 
+			},
+			{targets: 3, data: "orgStatus" },		//상태	
+			{targets: 4, data: "orgOwnerNm" },		//소유주명
+			{targets: 5, data: "orgRspnberNm" },	//책임자명
+			 {
+				targets: 6,
+				data: "orgFcltyRegistde",
+				render : function(data,type,row){
+					if(data == null){
+						data = "-";
+					}else{
+						data = moment(data).format('YYYY-MM-DD');
+					}
+					return data;
+				}
+			},	//시설등록일	 
+			{
+				targets: 7, data: "visitDt",
+				render : function(data,type,row){
+					if(data == null){
+						data = "-";
+					}else{
+						data = moment(data).format('YYYY-MM-DD');
+					}
+					return data;
+				}
+			},//방문이력
+			{
+				targets: 8, data: "edc.issuDt",
+				render : function(data,type,row){
+					if(data == null){
+						data = "-";
+					}else{
+						data = moment(data).format('YYYY-MM-DD');
+					}
+					return data;
+				}
+			}//전자소독필증발급이력
+		],
+		/* <tr onclick="location.href='disinfectionView.html'"> */ 
+		//cell 데이터 변경
+		"columnDefs":[{
+		    	"targets": '_all',
+		    	"defaultContent": ""
+			},
+		
+			{
+				"render": function (data,type,row){
+					//areaSelect(data) 공통영역에서 지역 한글로 변경함.
+					return facilityTypeTranslation(data);
+				},
+				"targets" : 1
+			},
+			{
+				"render": function (data,type,row){
+					//areaSelect(data) 공통영역에서 지역 한글로 변경함.
+					return statusTranslation(data);
+				},
+				"targets" : 3
+			},
+		],
+		fnDrawCallback: function () {
+			$('#tableList tbody tr').click(function () {
+				// get position of the selected row
+				var position = $('#tableList').dataTable().fnGetPosition(this)
+				// value of the first column (can be hidden)
+				var id = $('#tableList').dataTable().fnGetData(position).id
+				// redirect
+				document.location.href = 'facilitiesVisitView.html?id=' + id
+			})
+		}
+		});  
+	};
+	
+	function searchFunction(){
+		//DataTable 초기화. 
+		$('#tableList').DataTable().destroy();
+		//DataTable 호출
+		tableList();
+	}
+
+</script>

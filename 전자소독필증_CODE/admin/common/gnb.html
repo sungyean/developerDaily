@@ -1,0 +1,91 @@
+<div class="gnb">    
+	<div class="gnbMenu">
+		<ul>
+			<li id="disinfection"><a href="../disinfection/disinfectionList.html">전자소독필증 관리</a></li>
+			<li id="disinfectionFacilities"><a href="../disinfectionFacilities/disinfectionFacilitiesList.html">거점소독시설 관리</a></li>
+			<li id="facilities"><a href="../facilities/facilitiesList.html">시설 관리</a></li>
+			<li id="users"><a href="../users/usersList.html">사용자 관리</a></li>
+			<!-- <li id="cs"><a href="../cs/noticeList.html">고객센터 관리</a></li>  -->
+			<li id="system"> <a href="../system/systemList.html">시스템 관리</a></li>
+		</ul>
+	</div>
+</div>
+
+<script>
+	var pathname = window.location.pathname.split("/");
+	if(window.location.hostname == "localhost"){
+		pathname[3] = pathname[2]
+	}
+	switch ( pathname[3] ) {
+		case "disinfection":
+			$("#disinfection").attr('class', 'on');
+		break;
+		case "disinfectionFacilities":
+			$("#disinfectionFacilities").attr('class', 'on');
+		break;
+		case "facilities":
+			$("#facilities").attr('class', 'on');
+		break;
+		case "users":
+			$("#users").attr('class', 'on');
+		break;
+		case "cs":
+			$("#cs").attr('class', 'on');
+		break;
+		case "system":
+			$("#system").attr('class', 'on');
+		break;
+		default:
+			$("#disinfection").attr('class', 'on')
+	}
+
+	switch ( getSigninAccount().accountTy ) {
+		case "TOP_MNGR":
+			$("#system").show();
+		break;
+		case "CENTR_MNGR":
+			$("#system").show();
+		break;
+		case "POSITN_DSNF_FCLTY_MNGR":
+			$("#users").remove();
+			$("cs").remove();
+			$("#system").remove();
+			$("#facilities").remove();
+		break;
+		case "CNSLR":
+			$("disinfection").remove();
+			$("#disinfectionFacilities").remove();
+			$("facilities").remove();
+			$("#users").remove();
+			$("cs").remove();
+			$("#system").remove();
+		break;
+		case "STKRS_FCLTY_CHARGER":
+			$("disinfection").remove();
+			$("#disinfectionFacilities").remove();
+			$("facilities").remove();
+			$("#users").remove();
+			$("cs").remove();
+			$("#system").remove();
+		break;
+		case "STKRS_VHCLE_DRVER":
+			$("disinfection").remove();
+			$("#disinfectionFacilities").remove();
+			$("facilities").remove();
+			$("#users").remove();
+			$("cs").remove();
+			$("#system").remove();
+		break;
+		case "NOT_SET":
+			$("disinfection").remove();
+			$("disinfectionFacilities").remove();
+			$("facilities").remove();
+			$("users").remove();
+			$("cs").remove();
+			$("system").remove();
+		break;
+		default:
+			$("#system").hide();
+	}
+	
+</script>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<form name="changeSystemFrm" id="changeSystemFrm" method="post" action="../../api1.0/accounts/ssoLogin">
+		<input type="text" name="sysCode" value="SYS001">
+		<input type="text" name="accountId" value="admin"/>
+		<input type="text" name="accountToken" value="12345678" />
+		<input type="submit" />
+	</form> 
+
+
+dis index
+war 배포 테스트용
+</html>
+<script src="../assets/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="../../assets/js/comm.js"></script>
+<script type="text/javascript">
+
+
+	$(document).ready(function() {
+		/*
+		$("#changeSystemFrm").submit(function(){
+			return true;
+		});
+		*/
+	})
+
+	let id = ""
+	id = getParameter("accountId");
+	
+	if(id != "") {
+		$.ajax({
+			type: 'GET',
+			url: global.apiUrl+"/accountDetails/search/findByAccountId?accountId="+id,
+			async: false,
+			//data: JSON.stringify(deleteData),
+			contentType: "application/json",
+			dataType: 'json',
+			success: function (res) {
+				console.log(res)
+				localStorage.setItem("SignInAccount", JSON.stringify(res));
+			}, 
+			complete: function (res) {
+				window.location.href="../disinfection/disinfectionList.html"
+			},
+			error: function(err) {
+				alert("실패");
+			}
+		});
+	}
+</script>

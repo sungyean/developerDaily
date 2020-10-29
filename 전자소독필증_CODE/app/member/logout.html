@@ -1,0 +1,55 @@
+<head>
+    <meta charset="UTF-8">
+      <script type="text/javascript" src="../../assets/js/comm.js"></script>
+    <script type="text/javascript">
+        let getLocalStorage =  JSON.parse(localStorage.getItem("SignInAccount"));
+        /* 공통 localStorage 객체 */
+
+        let SignInAccount = {
+            deviceTy : getLocalStorage.deviceTy,
+            mobileDeviceId : getLocalStorage.mobileDeviceId,
+            firebaseToken : getLocalStorage.firebaseToken //개인 기기 ID
+        };
+
+        //축산차량운전자:STKRS_VHCLE_DRVER, 거점소독시설담당자:POSITN_DSNF_FCLTY_MNGR, 농장(시설)담당자:STKRS_FCLTY_CHARGER
+        /* 축산 차량 운전자 일 경우 */
+        if(getLocalStorage.accountTy == "STKRS_VHCLE_DRVER"){
+            localStorage.clear();
+            /* localStorage 삭제 후 축산차량 운전자 기본정보 저장. */
+            SignInAccount.accountTy = "STKRS_VHCLE_DRVER"; 
+            localStorage.setItem("SignInAccount", JSON.stringify(SignInAccount));
+            //document.location.href = './login.html';
+
+        /*  거점소독시설관리자 */
+        }else if(getLocalStorage.accountTy == "POSITN_DSNF_FCLTY_MNGR"){
+            localStorage.clear();
+            /* localStorage 삭제 후 거점소독시설관리자 기본정보 저장. */
+            SignInAccount.accountTy = "STKRS_VHCLE_DRVER"; 
+            localStorage.setItem("SignInAccount", JSON.stringify(SignInAccount));
+            //document.location.href = './login.html';
+
+        /*축산 시설 관리자  */
+        }else if(getLocalStorage.accountTy == "STKRS_FCLTY_CHARGER"){
+            localStorage.clear();
+            /* localStorage 삭제 후 거점소독시설관리자 기본정보 저장. */
+            SignInAccount.accountTy = "STKRS_FCLTY_CHARGER"; 
+            localStorage.setItem("SignInAccount", JSON.stringify(SignInAccount));
+           // document.location.href = './login.html';
+        }
+        try {    
+            if (SignInAccount.deviceTy == "ANDROID") {
+                Hybrid.setAndroidLogoutFlag();
+            }else{//getlocalStorage.deviceTy == "IOS"
+            //webkit.messageHandlers.setIosLoginFlag.postMessage("JSON.stringify(postMessageList)");
+            webkit.messageHandlers.setIosLogoutFlag.postMessage("");
+            }
+        } catch (exception) {
+            document.location.href = './login.html';
+            console.log("exception",exception)
+        }
+
+    </script>
+  </head>
+  <body>
+      <h3>로그아웃 중입니다.</h3>
+  </body>

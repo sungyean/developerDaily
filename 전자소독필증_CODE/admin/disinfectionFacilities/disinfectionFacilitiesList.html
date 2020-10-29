@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>거점소독시설 관리자 사이트</title>
+	<script src="../../assets/js/comm.js"></script>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/fonts.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui-1.11.0.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script src="../assets/js/jquery-ui.min.js"></script>
+	<script src="../assets/js/jquery.mCustomScrollbar.min.js"></script>
+	<script src="../assets/js/custom.js"></script>
+	<script src="../assets/js/excelexportjs.js"></script>
+	<!-- jquery DataTable script 시작 -->
+	<link rel="stylesheet" href="../assets/css/tableData.css">
+	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+	<script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+	<!-- jquery DataTable script 끝 -->
+	<!-- Data format 시작 -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+	<!-- Data format 끝-->
+</head>
+<body>
+	<div class="header">
+	
+		<!-- TOP SECTION -->
+		<div id="headers"></div>
+		<!-- //TOP SECTION -->
+		<!-- GNB SECTION -->
+		<div id="gnb"></div>
+		<!-- //GNB SECTION -->    
+		<!-- contents -->
+		<div class="contents clearfix" id="contents">
+			<div class="lnb-wrap">
+				<h2 class="lnb-tit"><span>거점소독시설 관리</span></h2>
+				<ul class="lnb-menu">
+					<li class="on">
+						<a href="disinfectionFacilitiesList.html">거점소독시설 현황</a>
+						<ul>
+							<li><a href="disinfectionFacilitiesAdd.html">거점소독시설 등록</a></li>
+						</ul>
+					</li>                    
+				</ul>
+			</div>
+			<div class="contents-inn">
+				<h3 class="page-tit"><span>거점소독시설 현황</span></h3>
+				<div class="search-condition-box clearfix">
+					<!-- <div class="search-condition-tit">검색조건</div> -->
+					<table class="tb-modal-option">
+						<tr>
+							<th>기간 선택</th>
+							<td class="condition-input-box">
+								<div class="input-datepicker-box">
+									<span class="icon-calender"><img src="../assets/images/ico-date.png" alt="날짜 선택" title="날짜 선택"></span>
+									<input type="text" id="datepickerStart" class="input-datepicker">
+								</div>
+								<div class="ico-wave">
+									~
+								</div>
+								<div class="input-datepicker-box">
+									<span class="icon-calender"><img src="../assets/images/ico-date.png" alt="날짜 선택" title="날짜 선택"></span>
+									<input type="text" id="datepickerEnd" class="input-datepicker">
+								</div>
+							</td>
+							<th>지역 선택</th>
+							<td class="condition-input-box">
+								<select id="area" name="" class="">                    
+									<option value="" selected="">지역선택</option>                    
+									<option value="SU">서울</option>                      
+									<option value="GG">경기</option>                      
+									<option value="IC">인천</option>                      
+									<option value="BS">부산</option>                      
+									<option value="DG">대구</option>     
+									<option value="GJ">광주</option>                      
+									<option value="DJ">대전</option>                      
+									<option value="US">울산</option>                      
+									<option value="SJ">세종</option>                      
+									<option value="GW">강원</option>      
+									<option value="GN">경남</option>                      
+									<option value="GB">경북</option>                      
+									<option value="JN">전남</option>                      
+									<option value="JNBK">전북</option>                    
+									<option value="CHN">충남</option>  
+									<option value="CB">충북</option>   
+									<option value="JJ">제주</option>                    
+								</select>
+							</td>                           
+						</tr>
+						<tr>                           
+							<th>운영 상태</th>
+							<td class="condition-input-box">
+								<select id="status" name="" class="">                    
+									<option value="" selected="">운영상태</option>                    
+									<option value="NRMLT">정상</option>                    
+									<option value="WAIT">대기</option>                    
+									<option value="EMGNC">비상</option>                    
+									<option value="CLS">폐쇄</option>             
+								</select>
+							</td>
+							<th>검색어 입력</th>
+							<td class="condition-input-box">
+								<div class="search-box">
+									<input type="search" class="condition search" id="nm" placeholder="거점소독시설명을 입력하세요.">
+								</div>
+							</td> 
+						</tr>
+					</table>  
+					<div class="btn-search-condition-box">
+						<!-- <button class="btn-reset">초기회</button> -->
+						<button class="btn-search" onclick="searchFunction();" ><span class="icon-search"><img src="../assets/images/ico-search.png" alt="검색"></span>검색</button>
+					</div>                 
+				</div>               
+				<div class="tb-wrap">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>거점소독시설 목록</h4>
+					<div class="btn-add-wrap">
+						<button class="btn-add" id='DLtoExcel'>엑셀 다운로드</button>
+						<button class="btn-add" onclick="location.href='disinfectionFacilitiesAdd.html'"><span class="icon-add"><img src="../assets/images/icon-add.png" alt="등록하기"></span>거점소독시설 등록하기</button>
+					</div>
+					<table class="tb-list" id="tableList">
+						<thead>
+							<tr>
+								<th>No</th>
+								<th>지역</th>
+								<th>거점소독시설명</th>
+								<th>운영상태</th>
+								<th>인력(명)</th>
+								<th>시설 등록일</th>
+								<th>전자소독필증 발급이력</th>
+							</tr>
+						</thead>
+					</table>
+				</div>              
+			</div>
+		</div>
+		<!-- //contents -->
+	</div>
+</body>
+</html>
+<script>
+	$("#headers").load("../common/headers.html");
+	$("#gnb").load("../common/gnb.html");
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		tableList();
+	})
+	var excelData;
+	let filter = "";
+	let sum = "";
+	//tableList function 
+	function tableList() {
+		filter = ""
+		sum = ""
+		filter += getEstnUrl("status", "DELETE", "com.kware.dis.jpa.dis.domain.CmDsnfFclty$STATUS", "NEQ");
+		if($('#area').val() != "" && $('#area').val() != null){
+			filter+="&schColumns=area"+"&schKeywords="+ $('#area').val()+"&columnTypes=com.kware.dis.jpa.dis.domain.ElctrnDsnfCerfin$Area"+"&columnFormats="+"&comparisonOperators=EQ"+"&conditions=AND"
+		}
+		
+		if($('#status').val() != "" && $('#status').val() != null){
+			filter+="&schColumns=status"+"&schKeywords="+ $('#status').val()+"&columnTypes=com.kware.dis.jpa.dis.domain.CmDsnfFclty$STATUS"+"&columnFormats="+"&comparisonOperators=EQ"+"&conditions=AND"
+		}
+
+		if($('#nm').val() != "" && $('#nm').val() !=null){
+			filter+="&schColumns=nm"+"&schKeywords="+ $('#nm').val()+"&columnTypes=STRING"+"&columnFormats="+"&comparisonOperators=LK"+"&conditions=AND"
+		}
+
+		if($('#datepickerStart').val() != ""){
+			filter+="&schColumns=registDt"+"&schKeywords="+ moment($('#datepickerStart').val()).format('YYYYMMDD 00:00:00.000000')+"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=GT"+"&conditions=AND"
+		}
+
+		if($('#datepickerEnd').val() != ""){
+			filter+="&schColumns=registDt"+"&schKeywords="+ moment($('#datepickerEnd').val()).format('YYYYMMDD 00:00:00.000000')+"&columnTypes=TIME"+"&columnFormats=yyyyMMdd%20HH:mm:ss.SSSSSS"+"&comparisonOperators=LT"+"&conditions=AND"
+		}
+
+		$('#tableList').DataTable({
+		//옵션
+		"searching": false,
+		"pagingType" : "full_numbers",
+		"info" : true,
+		"paging": true,
+		"serverSide":true,
+		"ordering" : true,
+		"order": [[ 0, "desc" ] ],
+		//언어설정
+		"language": 
+		{   //"현재_START_ - _END_ / _TOTAL_개",
+			"info": " _TOTAL_개/총개",
+			"emptyTable" : "데이터가 존재하지 않습니다.",
+			"sLengthMenu": "",
+			"paginate": {
+				"first": "맨앞",
+				"next": "다음",
+				"previous": "이전",
+				"last": "맨끝"
+			}
+		},
+		"ajax": {
+			"type" : "GET",
+			"url" : global.apiUrl+"/cmDsnfFclty/estnSearch?"+filter+sum,
+			"data" : function(data){
+				let page = "";
+				let sort = "";
+				page = "&page=" + parseInt(data.start/10);
+				//data.page = parseInt(data.start/10);
+				if(data.draw==1){
+					sort = "&sort=" + "id,desc"
+					//data.sort = "id,desc"
+				}else if(document.getElementsByClassName('sorting_asc').length >0){
+					sort = "&sort=" + "id,desc"
+					//data.sort = "id,desc"
+				} else {
+					sort = "&sort=" + "id,desc"
+					//data.sort = "id,asc"
+				}
+				draw = data.draw
+				console.log("pageing",page)
+				console.log("sort",sort)
+				let sum = page + sort
+				return sum
+			},
+			//data 명 바꾸기.
+			'dataFilter': function(retData) {
+				retData = JSON.parse(retData);  
+				if(draw ==1){
+					retData["recordsTotal"] = retData.page.totalElements;
+					totalPage = retData.page.totalElements;
+				}
+				retData["recordsTotal"] = totalPage;
+				retData["recordsFiltered"] =  retData.page.totalElements;
+				retData["data"] =retData._embedded.cmDsnfFclty;
+				return JSON.stringify(retData);
+			},
+			complete:function(data){
+				document.getElementById('tableList_info').innerHTML=data.responseJSON.recordsFiltered+"개/총"+data.responseJSON.recordsTotal+"개"
+			}
+		},
+		"columns": [
+			{targets: 0, data: "id" },			//번호
+			{targets: 1, data: "area" },		//지역
+			{targets: 2, 						//거점소독시설명
+				data: "nm", 
+				render : function(data,type,row) {
+					//<a id="" class="btn btn-info" role="button" href="' + "/" + row.Link + '" target="_blank">click </a>
+					return '<a class="btn btn-info" href="disinfectionFacilitiesView.html?id='+row.id+'">'+data+'</a>'
+				}
+			},
+			{targets: 3, data: "status" },		//상태	
+			{targets: 4, data: ""},			//
+			{targets: 5,
+				data: "",
+				render : function(data,type,row){
+					if(data == null){
+						data = "-";
+					}else{
+						data = moment(data).format('YYYY-MM-DD');
+					}
+					return data;
+				}
+			},
+			{targets: 6, data: "" }
+		],
+		/* <tr onclick="location.href='disinfectionView.html'"> */ 
+		//cell 데이터 변경
+		"columnDefs":[{
+				"targets": '_all',
+				"defaultContent": ""
+			},
+			{
+				"render": function (data,type,row){
+					return areaTranslation(data);
+				},
+				"targets" : 1
+			},
+			{
+				"render": function (data,type,row){
+					//areaSelect(data) 공통영역에서 지역 한글로 변경함.
+					return statusTranslation(data);
+				},
+				"targets" : 3
+			},
+			{
+				"targets" : 4,
+				"visible" : false
+			}, 
+			{
+				"targets" : 5,
+				"visible" : false
+			},
+			{
+				"targets" : 6,
+				"visible" : false
+			}
+		],
+		"dom":"lfrtBip",
+		"buttons": [{
+	
+		}],
+		fnDrawCallback: function () {
+			$('#tableList tbody tr').click(function () {
+				// get position of the selected row
+				var position = $('#tableList').dataTable().fnGetPosition(this)
+				// value of the first column (can be hidden)
+				var id = $('#tableList').dataTable().fnGetData(position).id
+				// redirect
+				document.location.href = 'disinfectionFacilitiesView.html?id=' + id
+			})
+		}
+		});  
+	};
+
+	function getExcelData(){
+		$.ajax({
+			type: "GET",
+			url: global.apiUrl+"/cmDsnfFclty/estnSearch?"+filter+"&size=2147483647",
+			async: false,
+			contentType: "application/json",
+			success: function(data){
+				excelData=data._embedded.cmDsnfFclty;
+			},
+			error: function (request, status, error){
+				alert("오류가..")
+				console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error)
+			},
+			complete: function(data){
+			}
+		})
+	}
+
+	function searchFunction(){
+		//DataTable 초기화. 
+		$('#tableList').DataTable().destroy();
+		//DataTable 호출
+		tableList();
+	}
+
+	var $btnDLtoExcel = $('#DLtoExcel');
+	$btnDLtoExcel.on('click', function () {
+		getExcelData();
+
+		$("#dvjson").excelexportjs({
+				containerid: "dvjson"
+				, datatype: 'json'
+				, dataset: excelData
+				, columns: getColumns(excelData)
+				, fileName : "거점소독시설 목록.xls"   
+		});
+
+	});
+	
+</script>

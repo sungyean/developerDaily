@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>전자소독필증 등록</title>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/fonts.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui-1.11.0.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery.mCustomScrollbar.min.js"></script>
+	<script type="text/javascript" src="../assets/js/custom.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="../assets/js/additional-methods.min.js"></script>
+	<script type="text/javascript" src="../assets/js/messages_ko.min.js"></script>
+	<!-- smart popup -->
+	<link rel="stylesheet" href="../assets/css/jquery.smartPop.css">
+	<script type="text/javascript" src="../assets/js/jquery.smartPop.js"></script>
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<!-- jquery DataTable script 시작 -->
+	<link rel="stylesheet" href="../assets/css/tableData.css">
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+	<!-- jquery DataTable script 끝 -->
+</head>
+<body>
+	<div class="header">
+		<!-- TOP SECTION -->
+		<div id="headers"></div>
+		<!-- //TOP SECTION -->
+		<!-- GNB SECTION -->
+		<div id="gnb"></div>
+		<!-- //GNB SECTION -->
+		<!-- contents -->
+		<div class="contents clearfix" id="contents">
+			<div class="lnb-wrap">
+				<h2 class="lnb-tit"><span>전자소독필증 관리</span></h2>
+				<ul class="lnb-menu">
+					<li>
+						<a href="disinfectionList.html">전자소독필증 발급 현황</a>
+						<ul>
+							<li class="on"><a href="disinfectionAdd.html">전자소독필증 등록</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<form id="saveEdcm" method="POST">      
+				<div class="contents-inn">
+					<h3 class="page-tit"><span>전자소독필증 등록</span></h3>		
+					<div class="tb-wrap Add">
+						<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>기본정보</h4>
+						<table>                        
+							<tbody>
+								<tr>
+									<th><span class="mark-essential">*</span>회원 아이디</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" name="mberId" id="mberId" class="condition search" readonly>
+											<button class="btn-td-search" type="button" onclick="searchIdPop();">검색</button>
+										</div>
+									</td> 
+									<th><span class="mark-essential">*</span>운전자명</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" name="drverNm" id="drverNm" class="condition search">
+										</div>
+									</td> 
+								</tr>
+								<tr>
+									<th><span class="mark-essential">*</span>차량 번호</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" id="carNo" name="carNo">
+											<select name="carNoSearch" id="carNoSearch" onchange="onChangeCarNo();" style="display: none;">
+											</select>
+										</div>
+									</td> 
+									<th><span class="mark-essential">*</span>차종 명</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" name="carTy" id="carTy" class="condition search">
+										</div>
+									</td> 
+								</tr>
+								<tr>
+									<th><span class="mark-essential">*</span>차량 유형</th>
+									<td class="condition-input-box">
+										<select id="carCl" name="carCl" class="">                    
+											<option value="" selected="">차량 분류</option>
+											<option value="LVSTCK_CNVYNC">가축 운반차량</option>
+											<option value="CDL_CNVYNC">원유 운반차량</option>
+											<option value="EGG_CNVYNC">알 운반차량</option>
+											<option value="ANIMAL_MEDCIN_CNVYNC">동물(의)약품 운반차량</option>
+											<option value="FEED_CNVYNC">사료 운반차량</option>
+											<option value="BIRD_FEED_CNVYNC">조사료 운반차량</option>
+											<option value="LVSTCK_EXCRS_CNVYNC">가축분뇨 운반차량</option>
+											<option value="RICE_CNVYNC">왕겨,쌀겨,톱밥운반차량</option>
+											<option value="CPT_CNVYNC">퇴비 운반차량</option>
+											<option value="CLNIC_VHCLE">진료 차량</option>
+											<option value="PREVNT_INOCL_VHCLE">예방접종 차량</option>
+											<option value="ARTIF_UPDT_VHCLE">인공수정 차량</option>
+											<option value="CNSL_VHCLE">컨설팅 차량</option>
+											<option value="FEED_PICK_VHCLE">사료채취 차량</option>
+											<option value="DSNFC_VHCLE">방역 차량</option>
+											<option value="MCHN_REPAIR_VHCLE">기계수리 차량</option>
+											<option value="DFWS_SHIPMNT_VHCLE">가금출하 차량</option>
+											<option value="DLVY_VHCLE">배송상하차 차량</option>
+											<option value="HNF_TRNSP_VHCLE">인력수송 차량</option>
+											<option value="GNRL_VHCLE">일반 차량</option>
+											<option value="STKRS_VHCLE">축산 차량</option>
+											<option value="ETC_VHCLE">기타 차량</option>                   
+										</select>
+									</td>
+									<th><span class="mark-essential">*</span>최대 적재량</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" name="mxmmLdadngQy" id="mxmmLdadngQy" class="condition search">
+										</div>
+									</td> 
+								</tr>
+								<tr>
+									<th>지역 선택</th>
+									<td class="condition-input-box">
+										<select id="area" name="area" class="" readonly>
+											<option value="" selected="">지역선택</option>                    
+											<option value="SU">서울</option>                    
+											<option value="GG">경기</option>                    
+											<option value="IC">인천</option>                    
+											<option value="BS">부산</option>                    
+											<option value="DG">대구</option>   
+											<option value="GJ">광주</option>                    
+											<option value="DJ">대전</option>                    
+											<option value="US">울산</option>                    
+											<option value="SJ">세종</option>                    
+											<option value="GW">강원</option>    
+											<option value="GN">경남</option>                    
+											<option value="GB">경북</option>                    
+											<option value="JN">전남</option>                    
+											<option value="JNBK">전북</option>                    
+											<option value="CHN">충남</option> 
+											<option value="CB">충북</option> 
+											<option value="JJ">제주</option>                  
+										</select>
+									</td>
+									<th><span class="mark-essential">*</span>소독시설명</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" name="fcltyNm" id="fcltyNm" class="condition search" readonly>
+											<button type="button" class="btn-td-search" onclick="searchAccountPop();">검색</button>
+										</div>
+									</td> 
+								</tr>
+							</tbody>
+						</table>
+					</div> 
+					<div class="tb-wrap Add">
+						<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png" alt="테이블 제목"></span>추가정보</h4>
+						<table>                        
+							<tbody>
+								<tr>
+									<th><span class="mark-essential">*</span>출발지</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" class="condition search" id="strtpnt" name="strtpnt">
+										</div>
+									</td> 
+									<th><span class="mark-essential">*</span>목적지</th>
+									<td class="condition-input-box">
+										<div class="text-box">
+											<input type="text" class="condition search" id="dstn" name="dstn">
+										</div>
+									</td> 
+								</tr>
+								<tr>
+									<th><span class="mark-essential">*</span>방문 목적</th>
+									<td class="condition-input-box" colspan="3">
+										<div class="text-box">
+											<input type="text" class="condition search" id="visitPurps" name="visitPurps">
+										</div>
+									</td> 
+									<!-- reqstDt -->
+									<!-- 등록시 자동으로 저장 되고있음.
+									<th><span class="mark-essential">*</span>전자소독필증 발급일</th> 
+									<td class="condition-input-box">
+										<div class="input-datepicker-box">
+											<span class="icon-calender"><img src="../assets/images/ico-date.png" alt="날짜 선택" title="날짜 선택"></span>
+											<input type="text" id="issuDt" name="issuDt" class="input-datepicker">
+										</div> 
+									</td> -->
+									<!-- 농장정보마스터 
+									<input hidden id="cmFarmInfoMId" name="cmFarmInfoMId" value="">
+									-->
+									<!-- 축산시설 아이디 (축산시설에서 소독한 경우만) 
+									<input hidden id="cmStkrsFcltyInfoMId" name="cmStkrsFcltyInfoMId" value="">
+									-->
+									<!-- 등록자 아이디 -->
+									<input hidden id="registerId" name="registerId">
+									<!-- status 신청  -->
+									<input hidden id="status" name="status" value="REQST">
+									<!-- 시설 ID -->
+									<input type="hidden" id="issuFcltyId" name="issuFcltyId">
+									
+									<div id="searchCarDiv"></div>
+								</tr>
+							</tbody>
+						</table>
+					</div> 
+					<div class="btn-tbView-box">
+						<button class="btn-save" type="submit"><span class="icon-save"><img src="../assets/images/icon-save.png" alt="수정"></span>등록</button>
+						<button class="btn-list" type="button" onclick="menuListBack();"><span class="icon-list"><img src="../assets/images/icon-list.png" alt="목록"></span>목록</button>
+					</div>               
+				</div>
+			</form>
+		</div>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+	let userType = "";
+	$(function(){ 
+		$("#saveEdcm").validate({
+			//validation이 끝난 이후의 submit 직전 추가 작업할 부분
+			submitHandler: function(form, event) {
+				event.preventDefault(); //form 의 submit 을 막고 ajax 로 동작하기 위한 구문
+				//등록ID 넣기.
+				$("#registerId").val($("#mberId").val());
+				var tempArray = $(form).serializeArray();
+				var formData = {}
+				for(i=0; i<tempArray.length; i++){
+					formData[tempArray[i].name] =  tempArray[i].value;
+				}
+				console.log("userType",userType);
+				if (userType == "POSITN_DSNF_FCLTY_MNGR") { //거점소독시설 일 경우 
+					formData.issuDsnfFclty = {};
+					formData.issuDsnfFclty.id = $('#issuFcltyId').val();
+				}else if(userType == "STKRS_FCLTY_CHARGER"){
+					formData.issuFarm = {};
+					formData.issuFarm.farmNo = $('#issuFcltyId').val();
+				}
+				var f = confirm("저장 하시겠습니까?");
+				console.log("formData",JSON.stringify(formData))
+				if(f){
+					$.ajax({
+						type: form.method,
+						url: global.apiUrl+"/elctrnDsnfCerfins/apply",
+						async: false,
+						data: JSON.stringify(formData),
+						contentType: "application/json",
+						dataType: 'json',
+						success: function (res) {
+							window.location.href="./disinfectionList.html"
+						},
+						error: function(err) {
+							alert("실패");
+						}
+					});
+					return false;
+				} else {
+					return false;
+				}
+			},
+			//규칙
+			rules: {
+				mberId: {
+					required : true,
+					minlength : 8,
+					//remote: "/check_id.jsp"
+				},
+				drverNm: {
+					required : true,
+					minlength : 3
+				},
+				carNo: {
+					required : true,
+					minlength : 3,
+					//equalTo : password
+				},
+				carTy: {
+					required : true,
+					minlength : 2
+				},
+				carCl: {
+					required : true,
+					//digits : true // 숫자만 입력
+				},
+				mxmmLdadngQy: {
+					required : true,
+					digits : true,
+					minlength : 1,
+					//email : true
+				},
+				area : {
+					required : true,
+				},
+				fcltyNm : {
+					required : true,
+					minlength : 2
+				},
+				strtpnt: {
+					required : true,
+					minlength : 2
+				},
+				dstn: {
+					required : true,
+					minlength : 2
+				},
+				visitPurps: {
+					required : true,
+					minlength : 2
+				},
+			},
+			//규칙체크 실패시 출력될 메시지
+			messages : {
+				mberId: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+					remote : "존재하는 아이디입니다"
+				},
+				drverNm: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다"
+				},
+				carNo: {
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+					//equalTo : "비밀번호가 일치하지 않습니다."
+				},
+				carTy: {
+					required : "차량을 선택하세요.",
+					minlength : "최소 {0}글자이상이어야 합니다"
+				},
+				carCl: {
+					digits : "숫자만입력하세요"
+				},
+				mxmmLdadngQy: {
+					digits : "숫자만입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다",
+				},
+				area : {
+					required : "지역을 선택하세요."
+				},
+				fcltyNm:{
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다"
+				},
+				strtpnt:{
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다"
+				},
+				dstn:{
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다"
+				},
+				visitPurps:{
+					required : "필수로입력하세요",
+					minlength : "최소 {0}글자이상이어야 합니다"
+				}
+			}
+		});
+	});
+	$("#headers").load("../common/headers.html");
+	$("#gnb").load("../common/gnb.html");
+
+	//목록으로 이동
+	function menuListBack(){
+		window.location.href="disinfectionList.html";
+	}
+	// 팝업에서 에서 호출할 함수 parent.setFcltyNm(1, '거점소독시설명')
+	function setFclty(fcltyId, fcltyNm,area,accountTy) {
+		console.log("fcltyId",fcltyId)
+		$('#issuFcltyId').val(fcltyId);
+		$('#fcltyNm').val(fcltyNm);
+		$('#area').val(area);
+		userType = accountTy;
+	}
+	//차량운전자 & 시설 관리자 일 경우 자동 등록 
+	function setSearchId(userId,userNm,accountTy) {
+		$('#mberId').val(userId);
+		$('#drverNm').val(userNm);
+		$("#carNoSearch").css("display","none");
+		if(accountTy == "STKRS_VHCLE_DRVER"){
+			$.ajax({
+				type: "GET",
+				url: global.apiUrl+"/pweBeaconUserDetails/"+userId+"/carList",
+				async: false,
+				contentType: "application/json",
+				dataType: 'json',
+				success: function (res) {
+					console.log("res",res);
+					let makeinput = "";
+					for (let i = 0; i < res._embedded.cars.length; i++) {
+						var option = $("<option>"+res._embedded.cars[i].carNo+"</option>");
+						makeinput += "<input type=hidden id=carTy"+i+" value="+res._embedded.cars[i].carTy+">";
+						makeinput += "<input type=hidden id=carCl"+i+" value="+res._embedded.cars[i].carCl+">";
+						makeinput += "<input type=hidden id=mxmmLdadngQy"+i+" value="+res._embedded.cars[i].mxmmLdadngQy+">";
+						makeinput += "<input type=hidden id=carNo"+i+ " value='"+res._embedded.cars[i].carNo+"'>";
+						$("#carNoSearch").append(option);
+					}
+					$("#carNo").val(res._embedded.cars[0].carNo);
+					$("#carTy").val(res._embedded.cars[0].carTy);
+					$("#carCl").val(res._embedded.cars[0].carCl);
+					$("#mxmmLdadngQy").val(res._embedded.cars[0].mxmmLdadngQy);
+					$("#searchCarDiv").append(makeinput);
+					$("#carNoSearch").css("display","block");
+				},
+				error: function(err) {
+					alert("실패");
+				}
+			});
+		}
+
+	}
+	//거점소독 시설 관리자 일 경우 자동등록
+	function setSearchDsfId(userId,userNm,accountTy){
+		$('#mberId').val(userId);
+		$('#drverNm').val(userNm);
+		$("#carNoSearch").css("display","none");
+	}
+	function onChangeCarNo(){
+		for (let i = 0; i < $("#carNoSearch option").length; i++) {
+			if($("#carNoSearch option:selected").val() == $("#carNo"+i).val()){
+				$("#carTy").val($("#carTy"+i).val());   
+				$("#carCl").val($("#carCl"+i).val());
+				$("#mxmmLdadngQy").val($("#mxmmLdadngQy"+i).val());
+			}
+		}
+		$("#carNo").val($("#carNoSearch").val());
+	}
+
+	function searchAccountPop() {
+		var width = 800;
+		var height = 500;
+		var url = './disFctSearch.html';
+		$.smartPop.open({
+		    width: width,
+		    height: height,
+	      	isHeightFix : true,
+		    url: url,
+		    isScroll : 'yes'
+		});
+	}
+	function searchIdPop() {
+		var width = 800;
+		var height = 500;
+		var url = './disUserSearch.html';
+		$.smartPop.open({
+		    width: width,
+		    height: height,
+	      isHeightFix : true,
+		    url: url,
+		    isScroll : 'yes'
+		});
+	}
+</script>

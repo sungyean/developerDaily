@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>축산차량</title>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="../assets/js/custom.js"></script>
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<script type="text/javascript" src="../../assets/js/conditionModal.js"></script>
+	<!-- Data format-->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+	<!-- sessionChk -->
+	<script type="text/javascript" src="../../assets/js/sessionChk.js"></script>
+	<script type="text/javascript">
+		var loginUserSeq = getSigninAccount().seq;
+		
+		//신청서 목록
+		var applicationCurrentPage = 0;     //신청서 현재 페이지
+		var applicationCountPerPage = 10;   //신청서 페이지 당 갯수
+		var applicationTotal = 0;           //신청서 총 갯수
+
+		//전자소독필증 목록
+		var issuCurrentPage = 0;           //전자소독필증 현재 페이지
+		var issuCountPerPage = 10;         //전자소독필증 페이지 당 갯수
+		var issuTotal = 0;                 //전자소독필증 총 갯수
+
+		//검색조건 전역변수
+		var filterApplication = "";
+		var filterIssu = "";
+
+		var tempSampleApplicationList;
+		var sampleApplicationList;
+
+		var tempSampleIssuList;
+		var sampleIssuList;
+
+		var defaultApplicationUrl = global.apiUrl+"/elctrnDsnfCerfin/estnSearch?" +
+									getEstnUrl("mberId",getSigninAccount().accountId,"STRING","EQ") +
+									getEstnUrl("status","REQST","com.kware.dis.jpa.dis.domain.ElctrnDsnfCerfin$Status","EQ") +
+									"&sort=id,desc";
+
+		var defaultIssuUrl = global.apiUrl+"/elctrnDsnfCerfin/estnSearch?" +
+									getEstnUrl("mberId",getSigninAccount().accountId,"STRING","EQ") +
+									getEstnUrl("status","ISSU","com.kware.dis.jpa.dis.domain.ElctrnDsnfCerfin$Status","EQ") +
+									"&sort=id,desc";
+
+		$(document).ready(function() {
+			//session Check localStorage에 accountId 없을 경우 login Page로 이동
+			sessionChk();
+
+			//신청서 목록
+			tempSampleApplicationList = $('.sampleApplicationList');    //신청서 샘플
+			sampleApplicationList = tempSampleApplicationList.clone();
+			tempSampleApplicationList.css("display", "none");
+
+			tempSampleIssuList = $('.sampleIssuList');                //전자소독필증 샘플
+			sampleIssuList = tempSampleIssuList.clone();
+			tempSampleIssuList.css("display", "none");
+
+			getApplicationTotalPage();
+			getIssuTotalPage();
+
+			getApplicationList();
+			getIssuList();
+
+			var getMyListSearch = function(appliacationEstnSearchUrl, issuEstnSearchUrl) {
+				$("#applicationUl").empty();
+				$("#issuUl").empty();
+				filter="";
+				//페이징 초기화
+				applicationTotal = 0;
+				applicationCurrentPage = 0;		
+				issuTotal = 0;
+				issuCurrentPage = 0;
+				filterApplication="";
+				filterIssu="";
+
+				if(appliacationEstnSearchUrl != null && appliacationEstnSearchUrl != "undefined") {
+					filterApplication=appliacationEstnSearchUrl;
+				}
+				if(issuEstnSearchUrl != null && issuEstnSearchUrl != "undefined") {
+					filterIssu=issuEstnSearchUrl;
+				}
+
+				getApplicationTotalPage(filterApplication);
+				getIssuTotalPage(filterIssu);
+				getApplicationList(filterApplication);
+				getIssuList(filterIssu);
+				
+			}
+
+			//스크롤 처리를 위한 함수
+			$(window).scroll(function () {
+				if ($(window).scrollTop()-1 < $(document).height() - $(window).height() && $(window).scrollTop()+1 > $(document).height() - $(window).height()) {
+					if($(".on")[0]==$(".on").parent().children()[0]) {  //신청서 목록이 선택되었을 경우
+						getApplicationList(filterApplication);
+						applicationCurrentPage++;
+					} else if($(".on")[0]==$(".on").parent().children()[1]) {   //전자소독필증이 선택되었을 경우
+						getIssuList(filterIssu);
+						issuCurrentPage++;
+					}
+				}
+			});
+			const searchValue=document.getElementById('searchBox');
+			//const searchValue=document.querySelector('input[type="search"]');
+			const fromDateValue=$('#fromDateValue');
+			const toDateValue=$('#toDateValue');
+			const orderValue=$('#orderValue');
+			
+			$('#btn-condition').click(function() {
+				makeConditionModal(searchValue, fromDateValue, toDateValue, orderValue, getMyListSearch);
+			})
+		})
+
+		function getApplicationTotalPage(searchUrl) {
+			var url;
+			if(searchUrl!=undefined){
+				url=defaultApplicationUrl+searchUrl;
+			} else {
+				url=defaultApplicationUrl;
+			}
+			$.ajax({
+				type: 'GET',
+				url: url,
+				async: false,
+				contentType: "application/json",
+				dataType: 'json',
+				success: function (res) {
+					applicationTotal=res.page.totalElements;
+				}, 
+				complete: function (res) {
+					//window.location.href="./disinfectionList.html"
+				},
+				error: function(err) {
+					//alert("실패");
+				}
+			});
+
+		}
+
+		function getIssuTotalPage(searchUrl) {
+			var url;
+			if(searchUrl!=undefined){
+				url=defaultIssuUrl+searchUrl
+			} else {
+				url=defaultIssuUrl;
+			}
+			$.ajax({
+				type: 'GET',
+				url: url,
+				async: false,
+				contentType: "application/json",
+				dataType: 'json',
+				success: function (res) {
+					issuTotal=res.page.totalElements;
+				}, 
+				complete: function (res) {
+					//window.location.href="./disinfectionList.html"
+				},
+				error: function(err) {
+					//alert("실패");
+				}
+			});
+		}
+
+		function countApplicationPage() {
+			var pageUrl;
+			if ( applicationTotal==0 ) {
+				pageUrl="MAX";
+			} else if( applicationTotal > applicationCurrentPage*applicationCountPerPage) {
+				pageUrl="&page="+applicationCurrentPage+"&size=10";
+				applicationCurrentPage++;
+			} else if ( applicationTotal <= applicationCurrentPage*applicationCountPerPage ) {
+				pageUrl="MAX";
+			}
+			return pageUrl;
+		}
+
+		function countIssuPage() {
+			var pageUrl;
+			if ( issuTotal==0 ) {
+				pageUrl="MAX";
+			} else if( issuTotal > issuCurrentPage*issuCountPerPage) {
+				pageUrl="&page="+issuCurrentPage+"&size=10";
+				issuCurrentPage++;
+			} else if ( issuTotal <= issuCurrentPage*issuCountPerPage ) {
+				pageUrl="MAX";
+			}
+			return pageUrl;
+		}
+
+		function getApplicationList(searchUrl) {
+			var applicationPaging=countApplicationPage();
+			if(applicationPaging=="MAX") {
+			} else {
+				var finalUrl;
+				if(searchUrl!=undefined){
+					finalUrl=defaultApplicationUrl+searchUrl+applicationPaging;
+				} else {
+					finalUrl=defaultApplicationUrl+applicationPaging;
+				}
+				//신청서 목록
+				$.ajax({
+					type: 'GET',
+					url: finalUrl,
+					async: false,
+					contentType: "application/json",
+					dataType: 'json',
+					success: function (res) {
+						res._embedded.elctrnDsnfCerfin.forEach(function(item, index, array){
+							makeApplicationLi(item);
+						})
+						//$("#issuUl")[0].innerHTML="데이터가 없습니다.";
+					}, 
+					complete: function (res) {
+					},
+					error: function(err) {
+						alert("실패");
+					}
+				});
+			}
+		}
+
+		function getIssuList(searchUrl) {
+			//발급 승인 목록
+			var issuPaging=countIssuPage();
+			if(issuPaging=="MAX"){
+			} else {
+				var finalUrl;
+				if(searchUrl!=undefined){
+					finalUrl=defaultIssuUrl+searchUrl+issuPaging;
+				} else {
+					finalUrl=defaultIssuUrl+issuPaging;
+				}
+				$.ajax({
+					type: 'GET',
+					url: finalUrl,
+					async: false,
+					contentType: "application/json",
+					dataType: 'json',
+					success: function (res) {
+						res._embedded.elctrnDsnfCerfin.forEach(function(item, index, array){
+							makeIssuLi(item);
+						})
+						//$("#issuUl")[0].innerHTML="데이터가 없습니다.";
+					}, 
+					complete: function (res) {
+					},
+					error: function(err) {
+						alert("실패");
+					}
+				});
+			}
+		}
+
+		function makeApplicationLi(data) {  //신청서 목록 li 만들어서 ul 에 추가하는 함수
+			var tempSampleApplicationList = sampleApplicationList.clone();
+			tempSampleApplicationList[0].children[0].setAttribute("href","certificate.html?seq="+data.id) /// A태그에 href 추가
+			tempSampleApplicationList[0].children[0].children[0].children[0].innerHTML=data.fcltyNm;//거점소독시설 명
+			tempSampleApplicationList[0].children[0].children[0].children[2].children[0].innerText=data.carNo;//차량번호일시
+			tempSampleApplicationList[0].children[0].children[0].children[2].children[1].innerText=moment(data.registDt).format('YYYY-MM-DD HH:mm:ss');//등록일시
+			tempSampleApplicationList[0].children[0].children[1].children[0].children[0].children[1].innerText=data.strtpnt;//출발지
+			tempSampleApplicationList[0].children[0].children[1].children[0].children[1].children[1].innerText=data.dstn;//목적지
+			tempSampleApplicationList[0].children[0].children[1].children[0].children[2].children[1].innerText=data.visitPurps;//방문목적
+			$("#applicationUl").append(tempSampleApplicationList);
+		}
+
+		function makeIssuLi(data) {        //전자소독필증 목록 li 만들어서 ul 에 추가하는 함수
+			var tempSampleIssuList = sampleIssuList.clone();
+			tempSampleIssuList[0].children[0].setAttribute("href","certificate.html?seq="+data.id) /// A태그에 href 추가
+			tempSampleIssuList[0].children[0].children[0].children[0].innerHTML=data.fcltyNm;//거점소독시설 명
+			tempSampleIssuList[0].children[0].children[0].children[2].children[0].innerText=data.carNo;//차량번호일시
+			tempSampleIssuList[0].children[0].children[0].children[2].children[1].innerText=moment(data.issuDt).format('YYYY-MM-DD HH:mm:ss');//등록일시
+			tempSampleIssuList[0].children[0].children[1].children[0].children[0].children[1].innerText=data.strtpnt;//출발지
+			tempSampleIssuList[0].children[0].children[1].children[0].children[1].children[1].innerText=data.dstn;//목적지
+			tempSampleIssuList[0].children[0].children[1].children[0].children[2].children[1].innerText=data.visitPurps;//방문목적
+			$("#issuUl").append(tempSampleIssuList);
+		}
+		
+	</script>
+</head>
+<body>
+	<div class="mylist user1 bg-gray" id="wrap">
+		<!-- header -->
+		<header class="user1">
+			<div class="title-box">
+				<!-- <button class="btn-back" onclick="pageBack();">
+					<img src="../assets/images/btn-back.png" alt="back">
+				</button> -->
+				<h1>마이리스트</h1>
+			</div>
+		</header>
+		<!-- //header -->
+		<!-- tab menu -->
+		<div class="mylist-tab-menu">
+			<ul>
+				<li class="on"><a href="#box1">신청서 목록</a></li>
+				<li><a href="#box2">전자소독필증 목록</a></li>
+			</ul>
+		</div>
+		<!-- //tab menu -->
+		<!-- mylist search box -->
+		<div class="mylist-search-box">
+			<a class="btn-calendar" id="btn-condition"><img src="../assets/images/btn-calender.png" alt="calendar"></a>
+			<div class="input-box search">
+				<input type="text" id='searchBox' placeholder="방문목적을 입력하세요.">
+				<input type="hidden" id='fromDateValue'>
+				<input type="hidden" id='toDateValue'>
+				<input type="hidden" id='orderValue'>
+				<button class="btn-search"><img src="../assets/images/btn-search-u1.png" alt="serach"></button>
+			</div>
+		</div>
+		<!-- //myllist search box -->
+		<div class="container">            
+		<!-- mypage list -->
+		<!-- 신청서 목록 -->
+		<div id="box1" class="mylist-wrap user1">
+				<ul id="applicationUl">
+					<li class="sampleApplicationList">
+						<a href="#">
+							<div class="top-box">
+								<span class="tit">페이지 로딩중...</span>
+								<button class="btn-heart">
+									<img src="../assets/images/btn-heart.png" alt="favorite">
+								</button>
+								<div class="row">
+									<span class="left"></span>
+									<span class="right"></span>
+								</div>
+							</div>
+							<div class="bottom-box">
+								<ul>
+									<li>
+										<span class="left-tt">출발지</span>
+										<span class="right-tt"></span>
+									</li>
+									<li>
+										<span class="left-tt">도착지</span>
+										<span class="right-tt"></span>
+									</li>
+									<li>
+										<span class="left-tt">방문목적</span>
+										<span class="right-tt"></span>
+									</li>
+								</ul>
+							</div>
+						</a>
+					</li>
+				</ul>
+		</div>
+		<!-- 전자소독필증 -->
+		<div id="box2" class="mylist-wrap user1">
+				<ul id="issuUl">
+					<li class="sampleIssuList">
+						<a href="#">
+							<div class="top-box">
+								<span class="tit"></span>
+								<button class="btn-heart">
+									<img src="../assets/images/btn-heart.png" alt="favorite">
+								</button>
+								<div class="row">
+									<span class="left from"><img src="../assets/images/icon-from.png" alt="출발"></span>
+									<span class="right to user1"><img src="../assets/images/icon-to-user1.png" alt="도착"></span>
+								</div>
+							</div>
+							<div class="bottom-box">
+								<ul>
+									<li>
+										<span class="left-tt">출발지</span>
+										<span class="right-tt"></span>
+									</li>
+									<li>
+										<span class="left-tt">도착지</span>
+										<span class="right-tt"></span>
+									</li>
+									<li>
+										<span class="left-tt">방문목적</span>
+										<span class="right-tt"></span>
+									</li>
+								</ul>
+							</div>
+						</a>
+					</li>
+				</ul>
+			</div>
+		<!-- //mypage list -->
+		</div>
+	</div>
+</body>
+</html>
+	

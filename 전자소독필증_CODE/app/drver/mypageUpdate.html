@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>거점소독시설</title>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="../assets/js/custom.js"></script>
+	<!-- 공통 js -->
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<!-- validatate 체크 -->
+	<script type="text/javascript" src="../assets/js/jquery.validate.min.js"></script>
+	<!-- 공통 모달 -->
+	<script type="text/javascript" src="../../assets/js/confirmModal.js"></script>
+	<!-- iamport.payment.js -->
+	<script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.1.5.js"></script>
+	<!--주소검색 API-->
+	<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+	<script type="text/javascript" src="../../assets/js/daumPostalAPI.js"></script>
+	<!-- Data format -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+	<!-- sessionChk -->
+	<script type="text/javascript" src="../../assets/js/sessionChk.js"></script>
+	<script type="text/javascript">
+		let carInfo = [];
+		let getlocalStorage = JSON.parse(localStorage.getItem('SignInAccount'));
+		$(document).ready(function () {
+			//session Check localStorage에 accountId 없을 경우 login Page로 이동
+			sessionChk();
+			console.log("getlocalStorage", getlocalStorage);
+			//중복확인 text 숨기기
+			$("#carInfo-error").hide();
+			$.ajax({
+				
+				url: global.apiUrl + "/pweBeaconUserDetails/" + getlocalStorage.accountId,
+				type: "GET",
+				cache: false,
+				dataType: "json",
+				success: function (data) {
+					console.log("data", data)
+					$('#name').val(data.beaconUserNm);
+					$('#email').val(data.email);
+					$('#accountId').html(data.beaconUserId);
+					$('#moblphon').val(data.beaconUserMbtlnum);
+					$('#passwd').val(data.beaconUserPw);
+					$('#password_confirm').val(data.beaconUserPw);
+					if ($('#radio_man').val() == data.sexdstn) {
+						$("#radio_man").prop("checked", true)
+					} else if ($('#radio_woman').val() == data.sexdstn) {
+						$("#radio_woman").prop("checked", true)
+					}
+					//핸드폰번호 중복체크 첫 로딩시 하지 않도록 
+					$("#moblphonCertifity").val("1");
+					
+					/*축산차량 정보 가지고 오기. */
+					$.ajax({
+						url: data._links.carList.href,
+						type: "GET",
+						cache: false,
+						dataType: "json",
+						success: function (data) {
+							for (let i = 0; i < 5; i++) {
+								if(i < data._embedded.cars.length){
+									$("#car_div").append(
+										'<div class="popup-wrap sm" id="modal_dstn' + (i + 1) + '" style="overflow-y: scroll;">' +
+										'<div class="popup-box sm">' +
+										'<div class="popup-header sm">' +
+										'<a href="#" class="btn-popup-close" onclick="carinfoModalClose' + (i + 1) + '();"><img src="../assets/images/btn-popup-close.png" alt="팝업닫기"></a>' +
+										'</div>' +
+										'<div class="popup-contents sm"><header class="user1"><div class="title-box"><h1>개인정보 수정</h1></div></header>' +
+										'<div class="container pd-yes">' +
+										'<div class="input-box sm">' +
+										'<label for="carNo1' + (i + 1) + '">차량번호 <b class="point">*</b></label>' +
+										'<input type="text" id="carNo' + (i + 1) + '" placeholder="차량번호를 입력하세요." onchange="carNoChange(this);">' +
+										'<button type="button" class="btn-input-inn" onclick="carCheck(this);">중복확인</button>' +
+										'<input type="hidden" id="carCertifity' + (i + 1) + '">' +
+										'<input type="hidden" name="carNum">' +
+										'</div>' +
+										'<div class="input-box sm">' +
+										'<label for="carTy' + (i + 1) + '">차종명 <b class="point">*</b></label>' +
+										'<input type="text" id="carTy' + (i + 1) + '" placeholder="차종명을 입력하세요.">' +
+										'</div>' +
+										'<div class="input-box sm">' +
+										'<label for="carCl' + (i + 1) + '">차량 유형 <b class="point">*</b></label>' +
+										'<select id="carCl' + (i + 1) + '" class="">' +
+										'<option value="" selected="">차량 분류</option>' +
+										'<option value="LVSTCK_CNVYNC">가축 운반차량</option>' +
+										'<option value="CDL_CNVYNC">원유 운반차량</option>' +
+										'<option value="EGG_CNVYNC">알 운반차량</option>' +
+										'<option value="ANIMAL_MEDCIN_CNVYNC">동물(의)약품 운반차량</option>' +
+										'<option value="FEED_CNVYNC">사료 운반차량</option>' +
+										'<option value="BIRD_FEED_CNVYNC">조사료 운반차량</option>' +
+										'<option value="LVSTCK_EXCRS_CNVYNC">가축분뇨 운반차량</option>' +
+										'<option value="RICE_CNVYNC">왕겨,쌀겨,톱밥운반차량</option>' +
+										'<option value="CPT_CNVYNC">퇴비 운반차량</option>' +
+										'<option value="CLNIC_VHCLE">진료 차량</option>' +
+										'<option value="PREVNT_INOCL_VHCLE">예방접종 차량</option>' +
+										'<option value="ARTIF_UPDT_VHCLE">인공수정 차량</option>' +
+										'<option value="CNSL_VHCLE">컨설팅 차량</option>' +
+										'<option value="FEED_PICK_VHCLE">사료채취 차량</option>' +
+										'<option value="DSNFC_VHCLE">방역 차량</option>' +
+										'<option value="MCHN_REPAIR_VHCLE">기계수리 차량</option>' +
+										'<option value="DFWS_SHIPMNT_VHCLE">가금출하 차량</option>' +
+										'<option value="DLVY_VHCLE">배송상하차 차량</option>' +
+										'<option value="HNF_TRNSP_VHCLE">인력수송 차량</option>' +
+										'<option value="GNRL_VHCLE">일반 차량</option>' +
+										'<option value="STKRS_VHCLE">축산 차량</option>' +
+										'<option value="ETC_VHCLE">기타 차량</option>' +
+										'</select>' +
+										'</div>' +
+										'<div class="input-box sm">' +
+										'<label for="mxmmLdadngQy' + (i + 1) + '">최대적재량 <b class="point">*</b></label>' +
+										'<input type="text" id="mxmmLdadngQy' + (i + 1) + '" placeholder="최대 적재량(톤)">' +
+										'</div>' +
+										'<div class="input-box sm select">' +
+										'<label for="ownerSe' + (i + 1) + '">소유자 구분 <b class="point">*</b></label>' +
+										'<select id="ownerSe' + (i + 1) + '">' +
+										'<option value="INDVDL">개인</option>' +
+										'<option value="INDVDL_BSNM">개인사업자</option>' +
+										'<option value="CPR">법인</option>' +
+										'<option value="ADMNSTMACH">행정기관</option>' +
+										'<option value="PBLGRP">공공단체</option>' +
+										'<option value="GNRL_GRP">일반단체</option>' +
+										'<option value="FRGNR">외국인</option>' +
+										'</select>' +
+										'</div>' +
+										'<div class="input-box sm">' +
+										'<label for="cprNm' + (i + 1) + '">법인명 <b class="point">*</b></label>' +
+										'<input type="text" id="cprNm' + (i + 1) + '" placeholder="법인명">' +
+										'</div>' +
+										'<div class="input-box sm">' +
+										'<label for="bizrno' + (i + 1) + '">사업자등록번호 <b class="point">*</b></label>' +
+										'<input type="text" id="bizrno' + (i + 1) + '" placeholder="사업자등록번호">' +
+										'<input type="hidden" id="carSeq' + (i + 1) + '" name="carSeq' + (i + 1) + '">' +
+										'</div>' +
+										'<div class="btn-wrap double">' + 
+										'<button type="button" class="btn border-green" style="width:31%;height:51.99px;" id="carinfoModalClose' + (i + 1) + '" onclick="carinfoModalClose' + (i + 1) + '();">취소</button>' +
+										'<button type="button" class="btn bg-green" style="width:31%;height:51.99px;" id="modalDstnInsert' + (i + 1) + '" onclick="modalDstnInsert' + (i + 1) + '();">완료</button>' +
+										'<button type="button" class="btn bg-red" style="width:31%;height:51.99px; margin-left: 3.5%;" id="carinfoModalDelete' + (i + 1) + '" onclick="carinfoModalDelete' + (i + 1) + '();">삭제</button>' +
+										'</div>' +
+										'</div>' +
+										'</div>' +
+										'</div>' +
+										'</div>'
+									)//append 종료 
+								}else{
+									$("#car_div").append(
+										'<div class="popup-wrap sm" id="modal_dstn' + (i + 1) + '" style="overflow-y: scroll;">' +
+										'<div class="popup-box sm">' +
+										'<div class="popup-header sm">' +
+										'<a href="#" class="btn-popup-close" onclick="carinfoModalClose' + (i + 1) + '();"><img src="../assets/images/btn-popup-close.png" alt="팝업닫기"></a>' +
+										'</div>' +
+										'<div class="popup-contents sm"><header class="user1"><div class="title-box"><h1>개인정보 수정</h1></div></header>' +
+										'<div class="container pd-yes">' +
+										'<div class="input-box sm">' +
+										'<label for="carNo1' + (i + 1) + '">차량번호 <b class="point">*</b></label>' +
+										'<input type="text" id="carNo' + (i + 1) + '" placeholder="차량번호를 입력하세요." onchange="carNoChange(this);">' +
+										'<button type="button" class="btn-input-inn" onclick="carCheck(this);">중복확인</button>' +
+										'<input type="hidden" id="carCertifity' + (i + 1) + '">' +
+										'<input type="hidden" name="carNum">' +
+										'</div>' +
+										'<div class="input-box sm">' +
+										'<label for="carTy' + (i + 1) + '">차종명 <b class="point">*</b></label>' +
+										'<input type="text" id="carTy' + (i + 1) + '" placeholder="차종명을 입력하세요.">' +
+										'</div>' +
+										'<div class="input-box sm">' +
+										'<label for="carCl' + (i + 1) + '">차량 유형 <b class="point">*</b></label>' +
+										'<select id="carCl' + (i + 1) + '" class="">' +
+										'<option value="" selected="">차량 분류</option>' +
+										'<option value="LVSTCK_CNVYNC">가축 운반차량</option>' +
+										'<option value="CDL_CNVYNC">원유 운반차량</option>' +
+										'<option value="EGG_CNVYNC">알 운반차량</option>' +
+										'<option value="ANIMAL_MEDCIN_CNVYNC">동물(의)약품 운반차량</option>' +
+										'<option value="FEED_CNVYNC">사료 운반차량</option>' +
+										'<option value="BIRD_FEED_CNVYNC">조사료 운반차량</option>' +
+										'<option value="LVSTCK_EXCRS_CNVYNC">가축분뇨 운반차량</option>' +
+										'<option value="RICE_CNVYNC">왕겨,쌀겨,톱밥운반차량</option>' +
+										'<option value="CPT_CNVYNC">퇴비 운반차량</option>' +
+										'<option value="CLNIC_VHCLE">진료 차량</option>' +
+										'<option value="PREVNT_INOCL_VHCLE">예방접종 차량</option>' +
+										'<option value="ARTIF_UPDT_VHCLE">인공수정 차량</option>' +
+										'<option value="CNSL_VHCLE">컨설팅 차량</option>' +
+										'<option value="FEED_PICK_VHCLE">사료채취 차량</option>' +
+										'<option value="DSNFC_VHCLE">방역 차량</option>' +
+										'<option value="MCHN_REPAIR_VHCLE">기계수리 차량</option>' +
+										'<option value="DFWS_SHIPMNT_VHCLE">가금출하 차량</option>' +
+										'<option value="DLVY_VHCLE">배송상하차 차량</option>' +
+										'<option value="HNF_TRNSP_VHCLE">인력수송 차량</option>' +
+										'<option value="GNRL_VHCLE">일반 차량</option>' +
+										'<option value="STKRS_VHCLE">축산 차량</option>' +
+										'<option value="ETC_VHCLE">기타 차량</option>' +
+										'</select>' +
+										'</div>' +
+										'<div class="input-box sm">' +
+										'<label for="mxmmLdadngQy' + (i + 1) + '">최대적재량 <b class="point">*</b></label>' +
+										'<input type="text" id="mxmmLdadngQy' + (i + 1) + '" placeholder="최대 적재량(톤)">' +
+										'</div>' +
+										'<div class="input-box sm select">' +
+										'<label for="ownerSe' + (i + 1) + '">소유자 구분 <b class="point">*</b></label>' +
+										'<select id="ownerSe' + (i + 1) + '">' +
+										'<option value="INDVDL">개인</option>' +
+										'<option value="INDVDL_BSNM">개인사업자</option>' +
+										'<option value="CPR">법인</option>' +
+										'<option value="ADMNSTMACH">행정기관</option>' +
+										'<option value="PBLGRP">공공단체</option>' +
+										'<option value="GNRL_GRP">일반단체</option>' +
+										'<option value="FRGNR">외국인</option>' +
+										'</select>' +
+										'</div>' +
+										'<div class="input-box sm">' +
+										'<label for="cprNm' + (i + 1) + '">법인명 <b class="point">*</b></label>' +
+										'<input type="text" id="cprNm' + (i + 1) + '" placeholder="법인명">' +
+										'</div>' +
+										'<div class="input-box sm">' +
+										'<label for="bizrno' + (i + 1) + '">사업자등록번호 <b class="point">*</b></label>' +
+										'<input type="text" id="bizrno' + (i + 1) + '" placeholder="사업자등록번호">' +
+										'<input type="hidden" id="carSeq' + (i + 1) + '" name="carSeq' + (i + 1) + '">' +
+										'</div>' +
+										'<div class="btn-wrap double">' +
+										'<button type="button" class="btn border-green lg btn-join" onclick="carinfoModalClose' + (i + 1) + '();">취소</button>' +
+										'<button type="button" class="btn bg-green lg btn-join" onclick="modalDstnInsert' + (i + 1) + '();">완료</button>' +
+										'</div>' +
+										'</div>' +
+										'</div>' +
+										'</div>' +
+										'</div>'
+									)//append 종료
+								}
+							}// 5개 modal 생성 for문 종료
+							carInfo = [];
+							for (let i = 0; i < data._embedded.cars.length; i++) {
+								$("#carinfoModal" + (i + 1)).attr("src", "../assets/images/truck_insert.png");
+								//carNo 수정하지 않으면 중복 검사 하지 않기 위해 초기값 저장.
+								console.log("#carSeq" + (i + 1), data._embedded.cars[i].id)
+								$("#carCertifity"+ (i + 1)).val("1")
+								$("#carCl" + (i + 1)).val(data._embedded.cars[i].carCl);
+								$("#carNo" + (i + 1)).val(data._embedded.cars[i].carNo);
+								$("#carTy" + (i + 1)).val(data._embedded.cars[i].carTy);
+								$("#ownerSe" + (i + 1)).val(data._embedded.cars[i].ownerSe);
+								$("#cprNm" + (i + 1)).val(data._embedded.cars[i].cprNm);
+								$("#bizrno" + (i + 1)).val(data._embedded.cars[i].bizrno);
+								$("#mxmmLdadngQy" + (i + 1)).val(data._embedded.cars[i].mxmmLdadngQy);
+								//carSeq가 존재하면 update 존재하지 않으면 insert
+								$("#carSeq" + (i + 1)).val(data._embedded.cars[i].id);
+							}
+
+						}
+					})
+				}
+			})
+
+		})
+		//회원 유형에 따라 display 보여주는 상태 달라진다.
+		function submitFunction() {
+			$("#myPageSubmit").validate({
+				//validation이 끝난 이후의 submit 직전 추가 작업할 부분
+				submitHandler: function (form, event) {
+					event.preventDefault(); //form 의 submit 을 막고 ajax 로 동작하기 위한 구문
+					if ($("#moblphonCertifity").val() == "") {
+						modalAlert("휴대폰 중복확인 후 회원가입 할 수 있습니다.")
+						return false;
+					}
+					var formData = {}
+					formData.accountTy = "STKRS_VHCLE_DRVER";
+					formData.deviceTy = getlocalStorage.deviceTy;
+					formData.firebaseToken = getlocalStorage.firebaseToken;
+					formData.mobileDeviceId = getlocalStorage.mobileDeviceId;
+					formData.accountId = $("#accountId").html();
+					formData.email = $("#email").val();
+					formData.name = $("#name").val();
+					formData.passwd = $("#passwd").val();
+					
+					formData.sexdstn = $("input[name=sex]:checked").val();
+					formData.moblphon = $("#moblphon").val();
+					carInfo = [];
+					for (let i = 0; i < 5; i++) {
+						if($("#carNo"+(i+1)).val() != ""){
+							if ($("#carSeq"+(i+1)).val() == "") {
+								carInfo.push({
+									"carNo": $("#carNo"+(i+1)).val(),
+									"carCl": $("#carCl"+(i+1)).val(),
+									"carTy": $("#carTy"+(i+1)).val(),
+									"mxmmLdadngQy": $("#mxmmLdadngQy"+(i+1)).val(),
+									"ownerSe": $("#ownerSe"+(i+1)).val(),
+									"cprNm": $("#cprNm"+(i+1)).val(),
+									"bizrno": $("#bizrno"+(i+1)).val(),
+									"updusrId" : $("#accountId").html(),
+								});
+							} else {
+								carInfo.push({
+									"id": $("#carSeq"+(i+1)).val(),
+									"carNo": $("#carNo"+(i+1)).val(),
+									"carCl": $("#carCl"+(i+1)).val(),
+									"carTy": $("#carTy"+(i+1)).val(),
+									"mxmmLdadngQy": $("#mxmmLdadngQy"+(i+1)).val(),
+									"ownerSe": $("#ownerSe"+(i+1)).val(),
+									"cprNm": $("#cprNm"+(i+1)).val(),
+									"bizrno": $("#bizrno"+(i+1)).val(),
+									"updusrId" : $("#accountId").html(),
+								});
+							}
+						}
+					}
+					/* 차량운전자 일 경우 */
+					if (carInfo == "") {
+						$("#carInfo-error").show();
+						$("#carInfo-error").html("차량 정보는 1대이상 반드시 입력해야 합니다.");
+						$("#drver").focus();
+						return false;
+					} else {
+						$("#carInfo-error").hide();
+					}
+					formData.carList = carInfo;
+					console.log("formData",formData)
+					/* 회원등록 */
+					ajaxConfirmModal('수정 하시겠습니까?', 'submitModalFunction(' + JSON.stringify(formData) + ')');
+				},
+				//규칙
+				rules: {
+					passwd: {
+						required: true,
+						minlength: 8,
+						maxlength: 20,
+						passwordCk: true,
+					},
+					password_confirm: {
+						required: true,
+						minlength: 8,
+						maxlength: 20,
+						equalTo: "#passwd",
+					},
+					name: {
+						required: true,
+						//digits : true // 숫자만 입력
+					},
+					email: {
+						required: true,
+						minlength: 2,
+						email: true
+					},
+				},
+				//규칙체크 실패시 출력될 메시지
+				messages: {
+					passwd: {
+						required: "필수로 입력하세요",
+						minlength: "최소 {0}글자이상이어야 합니다",
+						maxlength: "최대 {0}글자이하이어야 합니다",
+						passwordCk: "비밀번호는 영문자,숫자,특수문자 조합을 입력해야 합니다."
+					},
+					password_confirm: {
+						required: "필수로 입력하세요.",
+						minlength: "최소 {0}글자이상이어야 합니다",
+						maxlength: "최대 {0}글자이하이어야 합니다",
+						equalTo: "비밀번호가 일치하지 않습니다.",
+					},
+					name: {
+						required: "필수로 입력하세요.",
+						minlength: "최소 {0}글자이상이어야 합니다",
+					},
+					email: {
+						required: "필수로 입력하세요.",
+						minlength: "최소 {0}글자이상이어야 합니다",
+						email: "이메일 형식에 맞지 않습니다."
+					},
+				}
+			});
+			$.validator.addMethod("passwordCk", function (value, element) {
+				return this.optional(element) || /^.*(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/.test(value);
+			});
+		};
+		/* 휴대폰번호 중복체크 */
+		function moblphonCheck(){
+			//$("#moblphonCertifity").val("");
+			if($("#moblphon").val() == ""){
+				modalAlert("휴대폰 번호를 입력하세요.");
+				return false;
+			}
+			if (!/(0[0-9]{1}[0-9]{1})([0-9]{3,4})([0-9]{4})$/.test($('#moblphon').val())){
+				modalAlert("다음과 같은 형식으로만 작성해 주세요.<br> ex) 01012345678 ");
+				return false;
+			}
+			//차량운전자 & 시설 관리자 일 경우
+			$.ajax({
+				url : global.apiUrl+"/pweBeaconUsers/countBy?&schColumns=beaconUserMbtlnum&schKeywords="+$("#moblphon").val()+"&columnTypes=STRING&columnFormats=&comparisonOperators=EQ&conditions=AND",
+				type: "GET",
+				cache: false,
+				dataType: "json",
+				success: function(data){
+					if(data.page.totalElements >0){
+						modalAlert("중복된 휴대폰 번호 입니다.");
+						return false;
+					}else if(data.page.totalElements ==0){
+						modalAlert("사용 가능한 휴대폰 번호 입니다.");
+						$("#moblphonCertifity").val("1");
+					}
+				}
+			})
+		}
+		/* 휴대폰 onChange 중복체크 초기화.*/
+		function onChangeCkPhone(){
+			$("#moblphonCertifity").val("");
+		}
+
+
+		/* 차량번호 중복체크 */
+		function carCheck(clickData) {
+			event.preventDefault();
+			let carNoId = $(clickData).prev()
+			let checkId = $(clickData).next()
+			console.log("carNoId",carNoId);
+			console.log("checkId",checkId);
+
+			//중복체크 iD 기준으로 초기화 시키기.
+			$("#" + checkId[0].id).val("");
+
+			if ($("#" + carNoId[0].id).val() == "") {
+				modalAlert("차량번호를 입력하세요.")
+				return false;
+			}
+			//차량번호 value 값 가지고 오기.
+			let carValue = $("#" + carNoId[0].id).val();
+			$.ajax({
+				type: 'GET',
+				url: global.apiUrl + "/cars/countBy?schColumns=carNo" + "&schKeywords=" + carValue + "&columnTypes=STRING" + "&columnFormats=" + "&comparisonOperators=EQ" + "&conditions=AND",
+				async: false,
+				contentType: "application/json",
+				dataType: 'json',
+				success: function (res) {
+					if (res.page.totalElements == 0) {
+						$("#" + checkId[0].id).val("1");
+						modalAlert("사용 가능한 차량 번호 입니다.")
+					} else {
+						modalAlert("중복된 차량 번호 입니다.")
+						return false;
+					}
+				},
+				error: function (res) {
+					console.log("error", res)
+				}
+			})
+		}
+		/* 차량 번호 change */
+		function carNoChange(data) {
+			//input 차량번호 바꿀 시 초기화.
+			console.log("carNoChange",data)
+			let carNoCheck = $(data).next().next();
+			console.log("carNoCheck",carNoCheck)
+			//차량중복검사 값 초기화.
+			$("#" + carNoCheck[0].id).val("");
+		}
+		/* 사업자 등록번호 check*/
+		function checkBizID(bizID) {
+			// bizID는 숫자만 10자리로 해서 문자열로 넘긴다.
+			var checkID = new Array(1, 3, 7, 1, 3, 7, 1, 3, 5, 1);
+			var tmpBizID, i, chkSum = 0, c2, remander;
+			var result;
+			bizID = bizID.replace(/-/gi, '');
+			for (i = 0; i <= 7; i++) {
+				chkSum += checkID[i] * bizID.charAt(i);
+			}
+			c2 = "0" + (checkID[8] * bizID.charAt(8));
+			c2 = c2.substring(c2.length - 2, c2.length);
+			chkSum += Math.floor(c2.charAt(0)) + Math.floor(c2.charAt(1));
+			remander = (10 - (chkSum % 10)) % 10;
+			if (Math.floor(bizID.charAt(9)) == remander) {
+				result = true; // OK!
+			} else {
+				result = false;
+			}
+			return result;
+		}
+		/* 삭제 모달창 닫기. */
+		function modal_close() {
+			event.preventDefault();
+			$('.popup-wrap.delete').hide();
+			$('.popup-wrap.delete').parent().remove();
+		}
+		/* car1 */
+		function carinfoModal1() {
+			$('#modal_dstn1').fadeIn();
+		}
+		function carinfoModalClose1() {
+			event.preventDefault();
+			$('#modal_dstn1').hide();
+		}
+		function modalDstnInsert1() {
+			if ($("#carNo1").val() == "") { modalAlert("차량 번호를 필수로 입력하세요."); $("#carNo1").focus(); return false; }			
+			if ($("#carCertifity1").val() == "") { modalAlert("중복체크는 필수입니다."); $("#carNo1").focus(); return false; }
+			if ($("#carTy1").val() == "") { modalAlert("차종 명을 필수로 입력하세요."); $("#carTy1").focus(); return false; }
+			if ($("#carCl1").val() == "") { modalAlert("차량 유형을 필수로 입력하세요."); $("#carCl1").focus(); return false; }
+			if ($("#mxmmLdadngQy1").val() == "") { modalAlert("최대 적재량을 필수로 입력하세요."); $("#mxmmLdadngQy1").focus(); return false; }
+			if ($("#ownerSe1").val() == "") { modalAlert("소유자 구분을 필수로 입력하세요."); $("#ownerSe1").focus(); return false; }
+			if ($("#cprNm1").val() == "") { modalAlert("법인명을 필수로 입력하세요."); $("#cprNm1").focus(); return false; }
+			if ($("#bizrno1").val() == "") { modalAlert("사업자 등록번호를 필수로 입력하세요."); $("#bizrno1").focus(); return false; }
+			if (!/^[0-9]*$/.test($("#mxmmLdadngQy1").val())) { modalAlert("최대 적재량은 숫자만 입력하세요"); $("#mxmmLdadngQy1").focus(); return false; }
+			if (checkBizID($("#bizrno1").val()) == false) { modalAlert("올바른 사업자 등록번호를 입력하세요."); $("#bizrno1").focus(); return false; }
+			$("#carinfoModal1").attr("src", "../assets/images/truck_insert.png");
+			$('#modal_dstn1').hide();
+			$("#carInfo-error").hide();
+		}
+		function carinfoModalDelete1(){
+			makeConfirmModal("삭제하시겠습니까?","carinfoDelete1()")
+		}
+		function carinfoDelete1(){
+			$("#carNo1").val("");
+			$("#carCl1").val("");
+			$("#carTy1").val("");
+			$("#mxmmLdadngQy1").val("");
+			$("#ownerSe1").val("");
+			$("#cprNm1").val("");
+			$("#bizrno1").val("");
+			$("#carinfoModal1").attr("src", "../assets/images/icon-plus.png");
+			$("#carinfoModalClose1").css("width","48%"); $("#carinfoModalClose1").addClass("lg btn-join");
+			$("#modalDstnInsert1").css("width","48%"); $("#modalDstnInsert1").addClass("lg btn-join");
+			$("#carinfoModalDelete1").css("display","none");
+			modal_close();
+			carinfoModalClose1();
+		}
+
+		/* car2 */
+		function carinfoModal2() {
+			$('#modal_dstn2').fadeIn();
+		}
+		function carinfoModalClose2() {
+			event.preventDefault();
+			$('#modal_dstn2').hide();
+		}
+		function modalDstnInsert2() {
+			if ($("#carNo2").val() == "") { modalAlert("차량 번호를 필수로 입력하세요."); $("#carNo2").focus(); return false; }
+			if ($("#carCertifity2").val() == "") { modalAlert("중복체크는 필수입니다."); $("#carNo2").focus(); return false; }
+			if ($("#carCl2").val() == "") { modalAlert("차량 유형을 필수로 입력하세요."); $("#carCl2").focus(); return false; }
+			if ($("#carTy2").val() == "") { modalAlert("차종 명을 필수로 입력하세요."); $("#carTy2").focus(); return false; }
+			if ($("#mxmmLdadngQy2").val() == "") { modalAlert("최대 적재량을 필수로 입력하세요."); $("#mxmmLdadngQy2").focus(); return false; }
+			if ($("#ownerSe2").val() == "") { modalAlert("소유자 구분을 필수로 입력하세요."); $("#ownerSe2").focus(); return false; }
+			if ($("#cprNm2").val() == "") { modalAlert("법인명을 필수로 입력하세요."); $("#cprNm2").focus(); return false; }
+			if ($("#bizrno2").val() == "") { modalAlert("사업자 등록번호를 필수로 입력하세요."); $("#bizrno2").focus(); return false; }
+			if (!/^[0-9]*$/.test($("#mxmmLdadngQy2").val())) { modalAlert("최대 적재량은 숫자만 입력하세요"); $("#mxmmLdadngQy2").focus(); return false; }
+			if (checkBizID($("#bizrno2").val()) == false) { modalAlert("올바른 사업자 등록번호를 입력하세요."); $("#bizrno2").focus(); return false; }
+			$("#carinfoModal2").attr("src", "../assets/images/truck_insert.png");
+			$('#modal_dstn2').hide();
+			$("#carInfo-error").hide();
+		}
+		function carinfoModalDelete2(){
+			makeConfirmModal("삭제하시겠습니까?","carinfoDelete2()")
+		}
+		function carinfoDelete2(){
+			$("#carNo2").val("");
+			$("#carCl2").val("");
+			$("#carTy2").val("");
+			$("#mxmmLdadngQy2").val("");
+			$("#ownerSe2").val("");
+			$("#cprNm2").val("");
+			$("#bizrno2").val("");
+			$("#carinfoModal2").attr("src", "../assets/images/icon-plus.png");
+			$("#carinfoModalClose2").css("width","48%"); $("#carinfoModalClose2").addClass("lg btn-join");
+			$("#modalDstnInsert2").css("width","48%"); $("#modalDstnInsert2").addClass("lg btn-join");
+			$("#carinfoModalDelete2").css("display","none");
+			modal_close();
+			carinfoModalClose2();
+		}
+		/* car3 */
+		function carinfoModal3() {
+			$('#modal_dstn3').fadeIn();
+		}
+		function carinfoModalClose3() {
+			event.preventDefault();
+			$('#modal_dstn3').hide();
+		}
+		function modalDstnInsert3() {
+			if ($("#carNo3").val() == "") { modalAlert("차량 번호를 필수로 입력하세요."); $("#carNo3").focus(); return false; }
+			if ($("#carCertifity3").val() == "") { modalAlert("중복체크는 필수입니다."); $("#carNo3").focus(); return false; }
+			if ($("#carCl3").val() == "") { modalAlert("차량 유형을 필수로 입력하세요."); $("#carCl3").focus(); return false; }
+			if ($("#carTy3").val() == "") { modalAlert("차종 명을 필수로 입력하세요."); $("#carTy3").focus(); return false; }
+			if ($("#mxmmLdadngQy3").val() == "") { modalAlert("최대 적재량을 필수로 입력하세요."); $("#mxmmLdadngQy3").focus(); return false; }
+			if ($("#ownerSe3").val() == "") { modalAlert("소유자 구분을 필수로 입력하세요."); $("#ownerSe3").focus(); return false; }
+			if ($("#cprNm3").val() == "") { modalAlert("법인명을 필수로 입력하세요."); $("#cprNm3").focus(); return false; }
+			if ($("#bizrno3").val() == "") { modalAlert("사업자 등록번호를 필수로 입력하세요."); $("#bizrno3").focus(); return false; }
+			if (!/^[0-9]*$/.test($("#mxmmLdadngQy3").val())) { modalAlert("최대 적재량은 숫자만 입력하세요"); $("#mxmmLdadngQy3").focus(); return false; }
+			if (checkBizID($("#bizrno3").val()) == false) { modalAlert("올바른 사업자 등록번호를 입력하세요."); $("#bizrno3").focus(); return false; }
+			$("#carinfoModal3").attr("src", "../assets/images/truck_insert.png");
+			$('#modal_dstn3').hide();
+			$("#carInfo-error").hide();
+		}
+		function carinfoModalDelete3(){
+			makeConfirmModal("삭제하시겠습니까?","carinfoDelete3()")
+		}
+		function carinfoDelete3(){
+			$("#carNo3").val("");
+			$("#carCl3").val("");
+			$("#carTy3").val("");
+			$("#mxmmLdadngQy3").val("");
+			$("#ownerSe3").val("");
+			$("#cprNm3").val("");
+			$("#bizrno3").val("");
+			$("#carinfoModal3").attr("src", "../assets/images/icon-plus.png");
+			$("#carinfoModalClose3").css("width","48%"); $("#carinfoModalClose3").addClass("lg btn-join");
+			$("#modalDstnInsert3").css("width","48%"); $("#modalDstnInsert3").addClass("lg btn-join");
+			$("#carinfoModalDelete3").css("display","none");
+			modal_close();
+			carinfoModalClose3();
+		}
+		/* car4 */
+		function carinfoModal4() {
+			$('#modal_dstn4').fadeIn();
+		}
+		function carinfoModalClose4() {
+			event.preventDefault();
+			$('#modal_dstn4').hide();
+		}
+		function modalDstnInsert4() {
+			if ($("#carNo4").val() == "") { modalAlert("차량 번호를 필수로 입력하세요."); $("#carNo4").focus(); return false; }
+			if ($("#carCertifity4").val() == "") { modalAlert("중복체크는 필수입니다."); $("#carNo4").focus(); return false; }
+			if ($("#carCl4").val() == "") { modalAlert("차량 유형을 필수로 입력하세요."); $("#carCl4").focus(); return false; }
+			if ($("#carTy4").val() == "") { modalAlert("차종 명을 필수로 입력하세요."); $("#carTy4").focus(); return false; }
+			if ($("#mxmmLdadngQy4").val() == "") { modalAlert("최대 적재량을 필수로 입력하세요."); $("#mxmmLdadngQy4").focus(); return false; }
+			if ($("#ownerSe4").val() == "") { modalAlert("소유자 구분을 필수로 입력하세요."); $("#ownerSe4").focus(); return false; }
+			if ($("#cprNm4").val() == "") { modalAlert("법인명을 필수로 입력하세요."); $("#cprNm4").focus(); return false; }
+			if ($("#bizrno4").val() == "") { modalAlert("사업자 등록번호를 필수로 입력하세요."); $("#bizrno4").focus(); return false; }
+			if (!/^[0-9]*$/.test($("#mxmmLdadngQy4").val())) { modalAlert("최대 적재량은 숫자만 입력하세요"); $("#mxmmLdadngQy4").focus(); return false; }
+			if (checkBizID($("#bizrno4").val()) == false) { modalAlert("올바른 사업자 등록번호를 입력하세요."); $("#bizrno4").focus(); return false; }
+			$("#carinfoModal4").attr("src", "../assets/images/truck_insert.png");
+			$('#modal_dstn4').hide();
+			$("#carInfo-error").hide();
+		}
+		function carinfoModalDelete4(){
+			makeConfirmModal("삭제하시겠습니까?","carinfoDelete4()")
+		}
+		function carinfoDelete4(){
+			$("#carNo4").val("");
+			$("#carCl4").val("");
+			$("#carTy4").val("");
+			$("#mxmmLdadngQy4").val("");
+			$("#ownerSe4").val("");
+			$("#cprNm4").val("");
+			$("#bizrno4").val("");
+			$("#carinfoModal4").attr("src", "../assets/images/icon-plus.png");
+			$("#carinfoModalClose4").css("width","48%"); $("#carinfoModalClose4").addClass("lg btn-join");
+			$("#modalDstnInsert4").css("width","48%"); $("#modalDstnInsert4").addClass("lg btn-join");
+			$("#carinfoModalDelete4").css("display","none");
+			modal_close();
+			carinfoModalClose4();
+		}
+		/* car5 */
+		function carinfoModal5() {
+			$('#modal_dstn5').fadeIn();
+		}
+		function carinfoModalClose5() {
+			event.preventDefault();
+			$('#modal_dstn5').hide();
+		}
+		function modalDstnInsert5() {
+			if ($("#carNo5").val() == "") { modalAlert("차량 번호를 필수로 입력하세요."); $("#carNo5").focus(); return false; }
+			if ($("#carCertifity5").val() == "") { modalAlert("중복체크는 필수입니다."); $("#carNo5").focus(); return false; }
+			if ($("#carCl5").val() == "") { modalAlert("차량 유형을 필수로 입력하세요."); $("#carCl5").focus(); return false; }
+			if ($("#carTy5").val() == "") { modalAlert("차종 명을 필수로 입력하세요."); $("#carTy5").focus(); return false; }
+			if ($("#mxmmLdadngQy5").val() == "") { modalAlert("최대 적재량을 필수로 입력하세요."); $("#mxmmLdadngQy5").focus(); return false; }
+			if ($("#ownerSe5").val() == "") { modalAlert("소유자 구분을 필수로 입력하세요."); $("#ownerSe5").focus(); return false; }
+			if ($("#cprNm5").val() == "") { modalAlert("법인명을 필수로 입력하세요."); $("#cprNm5").focus(); return false; }
+			if ($("#bizrno5").val() == "") { modalAlert("사업자 등록번호를 필수로 입력하세요."); $("#bizrno5").focus(); return false; }
+			if (!/^[0-9]*$/.test($("#mxmmLdadngQy5").val())) { modalAlert("최대 적재량은 숫자만 입력하세요"); $("#mxmmLdadngQy5").focus(); return false; }
+			if (checkBizID($("#bizrno5").val()) == false) { modalAlert("올바른 사업자 등록번호를 입력하세요."); $("#bizrno5").focus(); return false; }
+			$("#carinfoModal5").attr("src", "../assets/images/truck_insert.png");
+			$('#modal_dstn5').hide();
+			$("#carInfo-error").hide();
+		}
+		function carinfoModalDelete5(){
+			makeConfirmModal("삭제하시겠습니까?","carinfoDelete5()")
+		}
+		function carinfoDelete5(){
+			$("#carNo5").val("");
+			$("#carCl5").val("");
+			$("#carTy5").val("");
+			$("#mxmmLdadngQy5").val("");
+			$("#ownerSe5").val("");
+			$("#cprNm5").val("");
+			$("#bizrno5").val("");
+			$("#carinfoModal5").attr("src", "../assets/images/icon-plus.png");
+			$("#carinfoModalClose5").css("width","48%"); $("#carinfoModalClose5").addClass("lg btn-join");
+			$("#modalDstnInsert5").css("width","48%"); $("#modalDstnInsert5").addClass("lg btn-join");
+			$("#carinfoModalDelete5").css("display","none");
+			modal_close();
+			carinfoModalClose5();
+		}
+		//submit
+		function submitModalFunction(formData) {
+			event.preventDefault();
+			$('#ajaxConfirmModal').hide();
+			
+			$.ajax({
+				type: 'PUT',
+				url: global.apiUrl +"/members/update",
+				data: JSON.stringify(formData),
+				contentType: "application/json",
+				async: false,
+				dataType: 'json',
+				success: function (res) {
+					$("#successModal").fadeIn();
+				},
+				error: function (err) {
+					alert("실패");
+				},
+			});
+		}
+		function ajaxConfirmModal_close() {
+			event.preventDefault();
+			$('#ajaxConfirmModal').hide();
+			$('#ajaxConfirmModal').parent().remove();
+		}
+		/* ajax 성공시 페이지 이동 */
+		function successModal_close() {
+			event.preventDefault();
+			$('#successModal').hide();
+			window.location.href = "./home.html"
+		}
+	</script>
+</head>
+
+<body>
+	<div class="join bg-gray" id="wrap">
+		<form id="myPageSubmit">
+			<!-- header -->
+			<header class="user1">
+				<div class="title-box">
+					<h1>개인정보 수정</h1>
+				</div>
+			</header>
+			<!-- //header -->
+			<div class="container pd-yes">
+				<div class="input-box sm">
+					<label for="id">아이디 <b class="point">*</b></label>
+					<!-- <input type="text" name="accountId"> -->
+					<span id="accountId" style="font-size: 20px;"></span>
+				</div>
+				<div class="input-box sm">
+					<!-- pass -->
+					<label for="pw">비밀번호 <b class="point">*</b></label>
+					<input type="password" name="passwd" id="passwd" placeholder="비밀번호">
+				</div>
+				<div class="input-box sm">
+					<label for="pw2">비밀번호 재입력 <b class="point">*</b></label>
+					<input type="password" name="password_confirm" id="password_confirm" placeholder="비밀번호 재입력">
+				</div>
+				<div class="input-box sm">
+					<label for="name">이름 <b class="point">*</b></label>
+					<input type="text" name="name" id="name" placeholder="이름">
+				</div>
+				<div class="input-box sm">
+					<label for="">이메일주소 <b class="point">*</b></label>
+					<input type="email" name="email" id="email" placeholder="이메일주소">
+				</div>
+				<div class="input-box sm">
+					<label for="">성별 <b class="point">*</b></label>
+					<ul class="choice gender">
+						<li class="on" style="width: 50%;">
+							<input id="radio_man" class="radio-group__option" type="radio" name="sex" value="MALE">
+							<label class="radio-group__label" for="radio_man">남자</label>
+						</li>
+						<li style="width: 50%;">
+							<input id="radio_woman" class="radio-group__option" type="radio" name="sex" value="FEMALE">
+							<label class="radio-group__label" for="radio_woman">여자</label>
+						</li>
+					</ul>
+				</div>
+				<div class="input-box sm">
+					<label for="name">휴대폰 번호 <b class="point">*</b></label>
+					<input type="text" name="moblphon" id="moblphon" placeholder="숫자만 입력해 주세요" onchange="onChangeCkPhone();">
+					<button type="button" class="btn-input-inn" id="moblphonButton" onclick="moblphonCheck();">중복확인</button>
+					<input type="hidden" id="moblphonCertifity">
+				</div>
+				<!-- <div class="input-box sm">
+                        <label for="">휴대폰번호 <b class="point">*</b></label>
+                        <input type="text" name="telno" id="telno" placeholder="휴대폰번호">
+                        <button type="button" class="btn-input-inn">인증하기</button>
+                    </div>
+                    <div class="input-box sm">
+                        <label for="">인증번호 재입력 <b class="point">*</b></label>
+                        <input type="text" name="" id="" placeholder="인증번호">
+                        <button type="button" class="btn-input-inn">확인</button>
+                    </div> -->
+				<!-- 축산차량 운전자일 경우에  START-->
+				<div class="user-info user1" id="drver">
+					<p class="tit-row">차량정보 입력</p>
+					<div class="input-box sm">
+						<label for="">차량정보 입력 <b class="point">*</b></label>
+						<ul class="car-info">
+							<li><a onclick="carinfoModal1();"><img id="carinfoModal1" src="../assets/images/icon-plus.png" alt="차량정보 추가"></a></li>
+							<li><a onclick="carinfoModal2();"><img id="carinfoModal2" src="../assets/images/icon-plus.png" alt="차량정보 추가"></a></li>
+							<li><a onclick="carinfoModal3();"><img id="carinfoModal3" src="../assets/images/icon-plus.png" alt="차량정보 추가"></a></li>
+							<li><a onclick="carinfoModal4();"><img id="carinfoModal4" src="../assets/images/icon-plus.png" alt="차량정보 추가"></a></li>
+							<li><a onclick="carinfoModal5();"><img id="carinfoModal5" src="../assets/images/icon-plus.png" alt="차량정보 추가"></a></li>
+						</ul>
+						<label id="carInfo-error" for="drver"></label>
+					</div>
+				</div>
+				<!-- 축산차량 운전자일 경우에 END-->
+			</div>
+			<div class="btn-wrap one pd-yes">
+				<button type="submit" class="btn bg-green lg btn-join" onclick="submitFunction();">개인정보 수정</button>
+			</div>
+		</form>
+		<!-- 축산차량 일 경우 DIV append -->
+		<div id="car_div">
+
+		</div>
+		<div class="popup-wrap sm" id="successModal">
+			<div class="popup-box sm">
+				<div class="popup-header sm">
+				</div>
+				<div class="popup-contents sm">
+					<p class="txt">수정을 완료 하였습니다.</p>
+				</div>
+				<div class="popup-footer sm">
+					<button type="button" class="btn bg-green btn-delete" style='width:100%;' onclick="successModal_close();">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

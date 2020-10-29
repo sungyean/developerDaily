@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>사용자 현황 상세보기</title>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/fonts.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui.css">
+	<link rel="stylesheet" href="../assets/css/jquery-ui-1.11.0.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery.mCustomScrollbar.min.js"></script>
+	<script type="text/javascript" src="../assets/js/custom.js"></script>
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<!-- Data format -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+</head>
+
+<body>
+	<div class="header">
+		<!-- TOP SECTION -->
+		<div id="headers"></div>
+		<!-- //TOP SECTION -->
+		<!-- GNB SECTION -->
+		<div id="gnb"></div>
+		<!-- //GNB SECTION -->
+		<!-- contents -->
+		<div class="contents clearfix" id="contents">
+			<div class="lnb-wrap">
+				<h2 class="lnb-tit"><span>사용자 관리</span></h2>
+				<ul class="lnb-menu">
+					<li class="on">
+						<a href="usersList.html">사용자 현황</a>
+						<ul>
+							<li><a href="usersAdd.html">사용자 등록</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div class="contents-inn">
+				<h3 class="page-tit"><span>사용자 현황 상세보기</span></h3>
+				<div class="tb-wrap Add">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png"
+								alt="테이블 제목"></span>사용자 기본정보</h4>
+					<table class="tb-view">
+						<tbody>
+							<tr>
+								<th><span class="mark-essential">*</span>사용자 유형</th>
+								<td id="userType"></td>
+								<th><span class="mark-essential">*</span>이름</th>
+								<td id="name"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>아이디</th>
+								<td id="accountId"></td>
+								<th><span class="mark-essential">*</span>연락처</th>
+								<td id="telno"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>이메일</th>
+								<td id="email"></td>
+								<th><span class="mark-essential">*</span>가입일</th>
+								<td id="createdAt"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>승인 상태</th>
+								<td id="isUsable" ></td>
+								<th><span class="mark-essential">*</span>성별</th>
+								<td id="sexdstn"></td>
+							</tr>
+							<!-- <tr>
+										<th><span class="mark-essential">*</span>마지막 접속일</th>
+										<td id="updatedAt"></td>
+										<th><span class="mark-essential">*</span>1:1 문의 내역</th>
+										<td class="btn-td-wrap">3건<button class="btn-td-direct">바로가기</button></td>
+									</tr> -->
+						</tbody>
+					</table>
+				</div>
+				<div class="tb-wrap Add" id="car1" style="display: none;">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png"
+								alt="테이블 제목"></span>사용자 차량 정보1</h4>
+					<table class="tb-view">
+						<tbody>
+							<tr>
+								<th><span class="mark-essential">*</span>차량유형</th>
+								<td id="carCl1"></td>
+								<th><span class="mark-essential">*</span>차량번호</th>
+								<td id="carNo1"></td>
+								<th><span class="mark-essential">*</span>차종</th>
+								<td id="carTy1"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>소유자 구분</th>
+								<td id="ownerSe1"></td>
+								<th><span class="mark-essential">*</span>법인명</th>
+								<td id="cprNm1"></td>
+								<th><span class="mark-essential">*</span>사업자 등록 번호</th>
+								<td id="bizrno1"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>최대 적재량</th>
+								<td id="mxmmLdadngQy1" colspan="5"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="tb-wrap Add" id="car2" style="display: none;">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png"
+								alt="테이블 제목"></span>사용자 차량 정보2</h4>
+					<table class="tb-view">
+						<tbody>
+							<tr>
+								<th><span class="mark-essential">*</span>차량유형</th>
+								<td id="carCl2"></td>
+								<th><span class="mark-essential">*</span>차량번호</th>
+								<td id="carNo2"></td>
+								<th><span class="mark-essential">*</span>차종</th>
+								<td id="carTy2"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>소유자 구분</th>
+								<td id="ownerSe2"></td>
+								<th><span class="mark-essential">*</span>법인명</th>
+								<td id="cprNm2"></td>
+								<th><span class="mark-essential">*</span>사업자 등록 번호</th>
+								<td id="bizrno2"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>최대 적재량</th>
+								<td id="mxmmLdadngQy2" colspan="5"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="tb-wrap Add" id="car3" style="display: none;">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png"
+								alt="테이블 제목"></span>사용자 차량 정보3</h4>
+					<table class="tb-view">
+						<tbody>
+							<tr>
+								<th><span class="mark-essential">*</span>차량유형</th>
+								<td id="carCl3"></td>
+								<th><span class="mark-essential">*</span>차량번호</th>
+								<td id="carNo3"></td>
+								<th><span class="mark-essential">*</span>차종</th>
+								<td id="carTy3"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>소유자 구분</th>
+								<td id="ownerSe3"></td>
+								<th><span class="mark-essential">*</span>법인명</th>
+								<td id="cprNm3"></td>
+								<th><span class="mark-essential">*</span>사업자 등록 번호</th>
+								<td id="bizrno3"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>최대 적재량</th>
+								<td id="mxmmLdadngQy3" colspan="5"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="tb-wrap Add" id="car4" style="display: none;">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png"
+								alt="테이블 제목"></span>사용자 차량 정보4</h4>
+					<table class="tb-view">
+						<tbody>
+							<tr>
+								<th><span class="mark-essential">*</span>차량유형</th>
+								<td id="carCl4"></td>
+								<th><span class="mark-essential">*</span>차량번호</th>
+								<td id="carNo4"></td>
+								<th><span class="mark-essential">*</span>차종</th>
+								<td id="carTy4"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>소유자 구분</th>
+								<td id="ownerSe4"></td>
+								<th><span class="mark-essential">*</span>법인명</th>
+								<td id="cprNm4"></td>
+								<th><span class="mark-essential">*</span>사업자 등록 번호</th>
+								<td id="bizrno4"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>최대 적재량</th>
+								<td id="mxmmLdadngQy4" colspan="5"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="tb-wrap Add" id="car5" style="display: none;">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png"
+								alt="테이블 제목"></span>사용자 차량 정보5</h4>
+					<table class="tb-view">
+						<tbody>
+							<tr>
+								<th><span class="mark-essential">*</span>차량유형</th>
+								<td id="carCl5"></td>
+								<th><span class="mark-essential">*</span>차량번호</th>
+								<td id="carNo5"></td>
+								<th><span class="mark-essential">*</span>차종</th>
+								<td id="carTy5"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>소유자 구분</th>
+								<td id="ownerSe5"></td>
+								<th><span class="mark-essential">*</span>법인명</th>
+								<td id="cprNm5"></td>
+								<th><span class="mark-essential">*</span>사업자 등록 번호</th>
+								<td id="bizrno5"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>최대 적재량</th>
+								<td id="mxmmLdadngQy5" colspan="5"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="tb-wrap Add" id="facility" style="display: none;">
+					<h4 class="tb-tit"><span class="icon-bullet"><img src="../assets/images/bullet1.png"
+								alt="테이블 제목"></span>사용자 시설 정보</h4>
+					<table class="tb-view">
+						<tbody>
+							<tr>
+								<th><span class="mark-essential">*</span>시설 명</th>
+								<td id="nm"></td>
+								<th><span class="mark-essential">*</span>시설 주소</th>
+								<td id="adres1"></td>
+								<th><span class="mark-essential">*</span>시설 상세 주소</th>
+								<td id="adres2"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>시설 우편번호</th>
+								<td id="zip"></td>
+								<th><span class="mark-essential">*</span>시설 등록일</th>
+								<td id="fcltyRegistde"></td>
+								<th><span class="mark-essential">*</span>축종</th>
+								<td id="ty"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>운영상태</th>
+								<td id="status"></td>
+								<th><span class="mark-essential">*</span>시설코드</th>
+								<td id="fcltyCode"></td>
+								<th><span class="mark-essential">*</span>시설지역</th>
+								<td id="area"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>소유주 주소</th>
+								<td id="ownerAdres1"></td>
+								<th><span class="mark-essential">*</span>소유주 상세주소</th>
+								<td id="ownerAdres2"></td>
+								<th><span class="mark-essential">*</span>소유주 우편번호</th>
+								<td id="ownerZip"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>소유주명</th>
+								<td id="ownerNm"></td>
+								<th><span class="mark-essential">*</span>소유주 연락처</th>
+								<td id="ownerCttpc"></td>
+								<th><span class="mark-essential">*</span>책임자 주소</th>
+								<td id="rspnberAdres1"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>책임자 상세주소</th>
+								<td id="rspnberAdres2"></td>
+								<th><span class="mark-essential">*</span>책임자 우편번호</th>
+								<td id="rspnberZip"></td>
+								<th><span class="mark-essential">*</span>책임자명</th>
+								<td id="rspnberNm"></td>
+							</tr>
+							<tr>
+								<th><span class="mark-essential">*</span>책임자 연락처</th>
+								<td id="rspnberCttpc" colspan="5"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="btn-tbView-box">
+					<button class="btn-delete" type="button" onclick="userDelete();"><span class="icon-delete"><img src="../assets/images/icon-delete.png" alt="삭제"></span>삭제</button>
+					<button class="btn-save" type="button" onclick="userUpdate();"><span class="icon-save"><img src="../assets/images/icon-save.png" alt="수정"></span>수정</button>
+					<button class="btn-list" type="button" onclick="menuListBack();"><span class="icon-list"><img src="../assets/images/icon-list.png" alt="목록"></span>목록</button>
+				</div>
+			</div>
+		</div>
+		<!-- //contents -->
+	</div>
+</body>
+
+</html>
+<script>
+	$("#headers").load("../common/headers.html");
+	$("#gnb").load("../common/gnb.html");
+</script>
+<script type="text/javascript">
+
+	let id = getParameter("id");
+	let accountTy = "";
+	$(document).ready(function () {
+		$.ajax({
+			url: global.apiUrl + "/pweBeaconUserDetails/" + id,
+			type: "GET",
+			cache: false,
+			dataType: "json",
+			success: function (data) {
+				console.log("data", data)
+				accountTy = data.accountTy
+				$('#name').html(data.beaconUserNm);
+				$('#email').html(data.email);
+
+				$('#accountId').html(data.beaconUserId);
+				$('#telno').html(data.beaconUserMbtlnum);
+				//가입일
+				if (data.createdAt == null || data.createdAt == "") {
+					$('#createdAt').html("-");
+				} else {
+					$('#createdAt').html(moment(data.createdAt).format('YYYY-MM-DD'));
+				}
+				if (data.status == 'SBSCRB_COMPT') {
+					$('#isUsable').html("가입완료");
+				} else if (data.status == 'CONFM_REJECT') {
+					$('#isUsable').html("승인거절");
+				} else if (data.status == 'CONFM_COMPT') {
+					$('#isUsable').html("승인완료");
+				}
+				if(data.sexdstn == "FEMALE"){
+					$('#sexdstn').html("여성");
+				}else if(data.sexdstn == "MALE"){
+					$('#sexdstn').html("남성");
+				}
+
+				//마지막 접속일
+				/* if(data.updatedAt == null || data.updatedAt == ""){
+					$('#updatedAt').html("-");
+				}else{
+					$('#updatedAt').html(data.updatedAt);
+				} */
+
+				/* 축산차량 운전자 일 경우 */
+				if (data.accountTy == 'STKRS_VHCLE_DRVER') {
+					$('#userType').html("축산차량 운전자");
+					$('#facility').hide();
+
+					console.log(data._links.carList.href);
+					$.ajax({
+						url: data._links.carList.href,
+						type: "GET",
+						cache: false,
+						dataType: "json",
+						success: function (data) {
+							if (data._embedded.cars[0] != undefined) {
+								$('#car1').show();
+								$("#carCl1").html(carClareaTranslation(data._embedded.cars[0].carCl));
+								$("#carNo1").html(data._embedded.cars[0].carNo);
+								$("#carTy1").html(data._embedded.cars[0].carTy);
+								$("#ownerSe1").html(ownerClassfi(data._embedded.cars[0].ownerSe))
+								$("#cprNm1").html(data._embedded.cars[0].cprNm);
+								$("#bizrno1").html(data._embedded.cars[0].bizrno);
+								$("#mxmmLdadngQy1").html(data._embedded.cars[0].mxmmLdadngQy + "톤");
+							}
+							if (data._embedded.cars[1] != undefined) {
+								$('#car2').show();
+								$("#carCl2").html(carClareaTranslation(data._embedded.cars[1].carCl));
+								$("#carNo2").html(data._embedded.cars[1].carNo);
+								$("#carTy2").html(data._embedded.cars[1].carTy);
+								$("#ownerSe2").html(ownerClassfi(data._embedded.cars[1].ownerSe))
+								$("#cprNm2").html(data._embedded.cars[1].cprNm);
+								$("#bizrno2").html(data._embedded.cars[1].bizrno);
+								$("#mxmmLdadngQy2").html(data._embedded.cars[1].mxmmLdadngQy + "톤");
+							}
+							if (data._embedded.cars[2] != undefined) {
+								$('#car3').show();
+								$("#carCl3").html(carClareaTranslation(data._embedded.cars[2].carCl));
+								$("#carNo3").html(data._embedded.cars[2].carNo);
+								$("#carTy3").html(data._embedded.cars[2].carTy);
+								$("#ownerSe3").html(ownerClassfi(data._embedded.cars[2].ownerSe))
+								$("#cprNm3").html(data._embedded.cars[2].cprNm);
+								$("#bizrno3").html(data._embedded.cars[2].bizrno);
+								$("#mxmmLdadngQy3").html(data._embedded.cars[2].mxmmLdadngQy + "톤");
+							}
+							if (data._embedded.cars[3] != undefined) {
+								$('#car4').show();
+								$("#carCl4").html(carClareaTranslation(data._embedded.cars[3].carCl));
+								$("#carNo4").html(data._embedded.cars[3].carNo);
+								$("#carTy4").html(data._embedded.cars[3].carTy);
+								$("#ownerSe4").html(ownerClassfi(data._embedded.cars[3].ownerSe))
+								$("#cprNm4").html(data._embedded.cars[3].cprNm);
+								$("#bizrno4").html(data._embedded.cars[3].bizrno);
+								$("#mxmmLdadngQy4").html(data._embedded.cars[3].mxmmLdadngQy + "톤");
+							}
+							if (data._embedded.cars[4] != undefined) {
+								$('#car5').show();
+								$("#carCl5").html(carClareaTranslation(data._embedded.cars[4].carCl));
+								$("#carNo5").html(data._embedded.cars[4].carNo);
+								$("#carTy5").html(data._embedded.cars[4].carTy);
+								$("#ownerSe5").html(ownerClassfi(data._embedded.cars[4].ownerSe))
+								$("#cprNm5").html(data._embedded.cars[4].cprNm);
+								$("#bizrno5").html(data._embedded.cars[4].bizrno);
+								$("#mxmmLdadngQy5").html(data._embedded.cars[4].mxmmLdadngQy + "톤");
+							}
+						}
+					})
+				}
+				/* 시설 관리자 일 경우 */
+				if (data.accountTy == 'STKRS_FCLTY_CHARGER') {
+					$('#car1').hide();
+					$('#car2').hide();
+					$('#car3').hide();
+					$('#car4').hide();
+					$('#car5').hide();
+					$('#facility').show();
+					$('#userType').html("시설 관리자");
+
+					$.ajax({
+						url: data._links.workCmStkrsFcltyInfoM.href,
+						type: "GET",
+						cache: false,
+						dataType: "json",
+						success: function (data) {
+							console.log("workCmStkrsFcltyInfoM", data);
+							$("#nm").html(data.nm);
+							$("#adres1").html(data.rnAdres1);
+							$("#adres2").html(data.adres2);
+							$("#zip").html(data.zip);
+							$("#fcltyRegistde").html(data.fcltyRegistde);
+							$("#fcltyCode").html(data.fcltyCode);
+							$("#area").html(areaTranslation(data.area));
+							$("#ownerAdres1").html(data.ownerAdres1);
+							$("#ownerAdres2").html(data.ownerAdres2);
+							$("#ownerNm").html(data.ownerNm);
+							$("#ownerZip").html(data.ownerZip);
+							$("#ownerCttpc").html(data.ownerCttpc);
+							$("#rspnberAdres1").html(data.rspnberAdres1);
+							$("#rspnberAdres2").html(data.rspnberAdres2);
+							$("#rspnberZip").html(data.rspnberZip);
+							$("#rspnberNm").html(data.rspnberNm);
+							$("#rspnberCttpc").html(data.rspnberCttpc);
+							$("#ty").html(facilitiesTranslation(data.ty));
+							$("#status").html(statusTranslation(data.status));
+						}
+					})
+				}
+			}
+		})
+	})
+	//삭제 버튼
+	function userDelete(e) {
+		
+		let deleteData = {
+			"accountId": id,
+			"accountTy": accountTy,
+			"status": "DELETE"
+		}
+		if ( confirm("삭제하시겠습니까?")) {
+			$.ajax({
+				type: 'PUT',
+				url: global.apiUrl + "/members/update",
+				async: false,
+				data: JSON.stringify(deleteData),
+				contentType: "application/json",
+				dataType: 'json',
+				success: function (res) {
+					console.log("res", res)
+				},
+				complete: function (res) {
+					window.location.href = "./usersList.html"
+				},
+				error: function (err) {
+					console.log("err", err)
+				}
+			});
+			return false;
+		} else {
+			return false;
+		}
+	}
+	//목록으로 이동
+	function menuListBack() {
+		window.location.href = "./usersList.html";
+	}
+	//수정 화면으로 이동
+	function userUpdate() {
+		window.location.href = "./usersUpdate.html?id=" + id;
+	}
+	function userTypeOnchage() {
+
+	}
+</script>

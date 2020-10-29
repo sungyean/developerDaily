@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>거점소독시설</title>
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../assets/js/custom.js"></script>
+    <!-- 공통 js -->
+    <script type="text/javascript" src="../../assets/js/comm.js"></script>
+    <!-- Data format 시작 -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <!--주소검색 API-->
+    <script type="text/javascript" src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+    <!-- validatate 체크 -->
+    <script type="text/javascript" src="../assets/js/jquery.validate.min.js"></script>
+</head>
+<body>
+    <div class="certificate-apply-modify user1 bg-gray" id="wrap">
+        <!-- header -->
+        <header class="user1">
+            <div class="title-box">
+                <button class="btn-back" onclick="backPage();">
+                    <img src="../assets/images/btn-back.png" alt="back">
+                </button>
+                 <h1>신청서 보기</h1>
+            </div>
+        </header>
+        <!-- //header -->
+        <!-- bill -->
+        <form  id="UpdateEdcm">
+            <div class="container bill user1 pd-yes"> 
+                <div class="bill-header">
+                    <p class="tit">신청서 내역</p>
+                </div>
+                <div class="bill-subheader">
+                    <ul>
+                        <li>
+                            <span class="t1">신청일자</span>
+                            <span class="t2" id="reqstDt"></span>
+                        </li>
+                        <li>
+                            <span class="t1">발급일자</span>
+                            <span class="t2" id="issuDt"></span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bill-con">
+                    <div class="item item1">
+                        <p class="tit">기본정보</p>
+                        <ul>
+                            <li>
+                                <span class="t1">운전자명</span>
+                                <span class="t2" id="drverNm"></span>
+                            </li>
+                            <li>
+                                <span class="t1">차량번호</span>
+                                <span class="t2" id="carNo"></span>
+                            </li>
+                            <li>
+                                <span class="t1">차량유형</span>
+                                <span class="t2" id="carCl"></span>
+                            </li>
+                            <li>
+                                <span class="t1">차종명</span>
+                                <span class="t2" id="carTy"></span>
+                            </li>
+                            <li>
+                                <span class="t1">최대적재량</span>
+                                <span class="t2" id="mxmmLdadngQy"></span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="item item2">
+                        <p class="tit">추가정보</p>
+                        <ul>
+                            <li>
+                                <span class="t1" style="width: 50px;">출발지</span>
+                                <input type="text" style="width: 250px;" id="strtpnt" name="strtpnt" class="input-modify">
+                            </li>
+                            <li>
+                                <span class="t1" style="width: 50px;">도착지</span>
+                                <input type="text" style="width: 250px;" id="dstn" name="dstn" class="input-modify">
+                            </li>
+                            <li>
+                                <span class="t1" style="width: 50px;">방문목적</span>
+                                <input type="text" style="width: 250px;" id="visitPurps" name="visitPurps" class="input-modify"><br/>
+                                <label for="visitPurps" id="visitPurps-error" class="error"></label>
+                                <!-- update Id 입력 -->
+                                <input type="hidden" id="updusrId" name="updusrId" class="input-modify"><br/>
+                            </li>
+                        </ul>
+                    </div>
+                </div>           
+                <div class="bill-footer two">
+                    <button type="button" class="btn border-green btn-delete" onclick="updateCancel();">취소</button>
+                    <button class="btn bg-green btn-ok2" type="submit">확인</button>
+                </div>
+            </div>
+        </form>
+        <!-- //bill -->
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+    let seq = getParameter("seq");
+    let userId = getSigninAccount().accountId;
+    $(document).ready(function(){
+        $.ajax({
+            url: global.apiUrl+"/elctrnDsnfCerfins/"+seq,
+			type: "GET",
+			cache: false,
+			dataType: "json",
+            success: function(data){
+                $("#reqstDt").html(moment(data.reqstDt).format('YYYY-MM-DD HH:mm:ss'))
+                if(data.issuDt ==null || data.issuDt == ""){
+                    $("#issuDt").html('-')
+                }else{
+                    $("#issuDt").html(moment(data.issuDt).format('YYYY-MM-DD HH:mm:ss'))
+                }
+                $("#drverNm").html(data.drverNm);
+                $("#carNo").html(data.carNo);
+                $("#carCl").html(carClareaTranslation(data.carCl));
+                $("#carTy").html(data.carTy);
+                $("#mxmmLdadngQy").html(data.mxmmLdadngQy+"톤");
+                $("#strtpnt").val(data.strtpnt);
+                $("#dstn").val(data.dstn);
+                $("#visitPurps").val(data.visitPurps);
+                /* 아이디 입력 */
+                $("#updusrId").val(userId);
+            }
+        })
+    });
+
+    /* 취소 클릭시 신청서 보기 화면으로 이동 */
+    function updateCancel(){
+        window.location.href="certificate-apply.html?seq="+seq
+    }
+    /* 신청 완료 후 신청서 보기 화면으로 이동 */
+    $(function(){ 
+		$("#UpdateEdcm").validate({
+            
+			//validation이 끝난 이후의 submit 직전 추가 작업할 부분
+			submitHandler: function(form, event) {
+				event.preventDefault(); //form 의 submit 을 막고 ajax 로 동작하기 위한 구문
+				var tempArray = $(form).serializeArray();
+				var formData = {}
+				for(i=0; i<tempArray.length; i++){
+					formData[tempArray[i].name] =  tempArray[i].value;
+				}
+					$.ajax({
+                        type: 'PUT',
+						url: global.apiUrl+"/elctrnDsnfCerfins/"+seq+"/update",
+						async: false,
+						data: JSON.stringify(formData),
+						contentType: "application/json",
+						dataType: 'json',
+						success: function (res) {
+						}, 
+						complete: function (res) {
+							window.location.href="certificate-apply.html?seq="+seq
+						}, 
+						error: function(err) {
+							alert("실패");
+						}
+					});
+					return false;
+			},
+			//규칙
+	    	rules: {
+				visitPurps: {
+                    required : true,
+                    minlength : 1,
+                    //remote: "/check_id.jsp"
+				}, 
+			},  
+			//규칙체크 실패시 출력될 메시지
+			messages : {
+				 visitPurps: {
+					required : "방문목적을 필수로입력하세요",
+					minlength : "최소 {1}글자이상이어야 합니다",
+				}, 
+			}  
+		});
+	});
+    function backPage(){
+        window.location.href="certificate-apply.html?seq="+seq
+    }
+
+</script>

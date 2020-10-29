@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>거점소독시설</title>
+	<link rel="stylesheet" href="../assets/css/common.css">
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script type="text/javascript" src="../assets/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="../assets/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="../assets/js/custom.js"></script>
+	<!-- 공통 js -->
+	<script type="text/javascript" src="../../assets/js/comm.js"></script>
+	<!-- validatate 체크 -->
+	<script type="text/javascript" src="../assets/js/jquery.validate.min.js"></script>
+	<!-- 공통 모달 -->
+	<script type="text/javascript" src="../../assets/js/confirmModal.js"></script>
+	<!-- iamport.payment.js -->
+	<script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.1.5.js"></script>
+	<!--주소검색 API-->
+	<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+	<script type="text/javascript" src="../../assets/js/daumPostalAPI.js"></script>
+	<!-- sessionChk -->
+	<script type="text/javascript" src="../../assets/js/sessionChk.js"></script>
+	<!-- Data format -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+	<script type="text/javascript">
+		let carInfo = [];
+		let getlocalStorage = JSON.parse(localStorage.getItem('SignInAccount'));
+		$(document).ready(function () {
+			//session Check localStorage에 accountId 없을 경우 login Page로 이동
+			
+			sessionChk();
+			console.log("getlocalStorage",getlocalStorage);
+			$.ajax({
+				url: global.apiUrl + "/accountDetails/search/findByAccountId?accountId=" + getlocalStorage.accountId,
+				type: "GET",
+				cache: false,
+				dataType: "json",
+				success: function (data) {
+					console.log("data", data)
+					$('#name').val(data.name);
+					$('#email').val(data.email);
+					$('#accountId').html(data.accountId);
+					$('#moblphon').val(data.mobile);
+					$("#passwd").val(data.pass);
+					$("#password_confirm").val(data.pass);
+					if(data.sex=="F") {
+						$('input:radio[name=sex]:input[value="FEMALE"]').attr("checked", true);
+					} else  {
+						$('input:radio[name=sex]:input[value="MALE"]').attr("checked", true);
+					}
+					$("#moblphonCertifity").val("1");
+					$.ajax({
+						url: global.apiUrl+"/cmDsnfFclties/search/findCmDsnfFcltyOfChrgPbsvnt?keyword="+getlocalStorage.accountId,
+						type: "GET",
+						cache: false,
+						dataType: "json",
+						success: function(data2){
+							console.log("data2",data2)
+							$('#fclty_nm').val(data2.nm)
+							$('#fclty_area').val(data2.area)
+							$('#fclty_rnAdres1').val(data2.rnAdres1)
+							$('#fclty_lmnAdres1').val(data2.lmnAdres1)
+							$('#fclty_adres2').val(data2.adres2)
+							$('#fclty_status').val(data2.status)
+							$('#fclty_zip').val(data2.zip)
+							$("#fclty_id").val(data2.id)
+							$('#position').val(data.position)
+							$('#clsf').val(data.clsf)
+							$('#workAreaNm').val(data.workAreaNm)
+						},   
+						error: function (request, status, error){  
+							var msg = "ERROR<br><br>"
+							msg += request.status + "<br>" + request.responseText + "<br>" + error;
+							console.log(msg);
+						}
+					})
+				}
+			})
+		})
+		//회원 유형에 따라 display 보여주는 상태 달라진다.
+		
+		function submitFunction() {		
+            $("#joinSubmit").validate({
+                //validation이 끝난 이후의 submit 직전 추가 작업할 부분
+                submitHandler: function (form, event) {
+					event.preventDefault(); //form 의 submit 을 막고 ajax 로 동작하기 위한 구문
+					if ($("#moblphonCertifity").val() == "") {
+						modalAlert("휴대폰 중복확인 후 회원가입 할 수 있습니다.")
+						return false;
+					}
+                    var formData = {}
+                    /* 공통 회원 추가 객체 */
+                    formData.accountTy = "POSITN_DSNF_FCLTY_MNGR";
+                    formData.deviceTy = getlocalStorage.deviceTy;
+                    formData.firebaseToken = getlocalStorage.firebaseToken;
+                    formData.mobileDeviceId = getlocalStorage.mobileDeviceId;
+                    formData.accountId = $("#accountId").html();
+                    formData.email = $("#email").val();
+                    formData.name = $("#name").val();
+					formData.passwd = $("#passwd").val();
+                    formData.sexdstn = $("input[name=sex]:checked").val();
+                    formData.moblphon = $("#moblphon").val();
+					
+                    /* 거점소독시설 관리자일 경우 */
+                    formData.position = $("#position").val();
+                    formData.clsf = $("#clsf").val();
+                    formData.workAreaNm = $("#workAreaNm").val();
+
+					if($("#fclty_id").val() == ""){
+						formData.cmDsnfFclty = {
+							rnAdres1 : $("#fclty_rnAdres1").val(),
+							lmnAdres1 : $("#fclty_lmnAdres1").val(),
+							adres2 : $("#fclty_adres2").val(),
+							area : $("#fclty_area").val(),
+							nm : $("#fclty_nm").val(),
+							updusrId : $("#accountId").html(),
+							status : $("#fclty_status").val(),
+							zip : $("#fclty_zip").val(),
+							/* 이거 물어보기. */
+							//userSelectedType : $("#fclty_userSelectedType").val()
+						};
+					}else{
+						formData.cmDsnfFclty = {
+							rnAdres1 : $("#fclty_rnAdres1").val(),
+							lmnAdres1 : $("#fclty_lmnAdres1").val(),
+							adres2 : $("#fclty_adres2").val(),
+							area : $("#fclty_area").val(),
+							nm : $("#fclty_nm").val(),
+							updusrId : $("#accountId").html(),
+							status : $("#fclty_status").val(),
+							zip : $("#fclty_zip").val(),
+							id : $("#fclty_id").val()
+						};
+					}
+                    console.log("formData", formData);
+                    ajaxConfirmModal('수정 하시겠습니까?', 'submitModalFunction('+ JSON.stringify(formData)+')');
+                },
+                //규칙
+                rules: {
+                    passwd: {
+                        required: true,
+                        minlength: 8,
+                        maxlength: 20,
+                        passwordCk : true,
+                    },
+                    password_confirm: {
+                        required: true,
+                        minlength: 8,
+                        maxlength: 20,
+                        equalTo: "#passwd",
+                    },
+                    name: {
+                        required: true,
+                        //digits : true // 숫자만 입력
+                    },
+                    email: {
+                        required: true,
+                        minlength: 2,
+                        email: true
+                    },
+                    position : {
+                        required: true,
+                        minlength: 2,
+                        maxlength: 20,
+                    },
+                    clsf : {
+                        required: true,
+                        minlength: 2,
+                        maxlength: 20,
+                    },
+                    workAreaNm : {
+                        required: true,
+                        minlength: 2,
+                        maxlength: 20,
+                    },
+                    fclty_nm : {
+                        required: true,
+                        minlength: 2,
+                        maxlength: 20
+                    },
+                    fclty_area : {
+                        required: true
+                    },
+                    fclty_status: {
+                        required: true
+                    },
+                    fclty_rnAdres1 : {
+                        required: true
+                    }
+                },
+                //규칙체크 실패시 출력될 메시지
+                messages: {
+                    passwd: {
+                        required: "필수로 입력하세요",
+                        minlength: "최소 {0}글자이상이어야 합니다",
+                        maxlength: "최대 {0}글자이하이어야 합니다",
+                        passwordCk : "비밀번호는 영문자,숫자,특수문자 조합을 입력해야 합니다."
+
+                    },
+                    password_confirm: {
+                        required: "필수로 입력하세요.",
+                        minlength: "최소 {0}글자이상이어야 합니다",
+                        maxlength: "최대 {0}글자이하이어야 합니다",
+                        equalTo: "비밀번호가 일치하지 않습니다.",
+                    },
+                    name: {
+                        required: "필수로 입력하세요.",
+                        minlength: "최소 {0}글자이상이어야 합니다",
+                    },
+                    email: {
+                        required: "필수로 입력하세요.",
+                        minlength: "최소 {0}글자이상이어야 합니다",
+                        email: "이메일 형식에 맞지 않습니다."
+                    },
+                    position : {
+                        required: "필수로 입력하세요.",
+                        minlength: "최소 {0}글자이상이어야 합니다",
+                        maxlength: "최대 {0}글자이하이어야 합니다",
+                    },
+                    clsf : {
+                        required: "필수로 입력하세요.",
+                        minlength: "최소 {0}글자이상이어야 합니다",
+                        maxlength: "최대 {0}글자이하이어야 합니다",
+                    },
+                    workAreaNm : {
+                        required: "필수로 입력하세요.",
+                        minlength: "최소 {0}글자이상이어야 합니다",
+                        maxlength: "최대 {0}글자이하이어야 합니다",
+                    },
+                    fclty_nm: {
+                        required: "필수로 입력하세요.",
+                        minlength: "최소 {0}글자이상이어야 합니다",
+                        maxlength: "최대 {0}글자이하이어야 합니다",
+                    },
+                    fclty_area : {
+                        required: "필수로 입력하세요."
+                    },
+                    fclty_status: {
+                        required: "필수로 입력하세요."
+                    },
+                    fclty_rnAdres1 : {
+                        required: "필수로 입력하세요."
+                    }
+                }
+            });
+            $.validator.addMethod("passwordCk",  function( value, element ) {
+                return this.optional(element) ||  /^.*(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/.test(value);
+            });
+		};
+	
+		/* 시설 관리자 */
+		/* 휴대폰 중복체크 */
+		function moblphonCheck(){
+			if($("#userType").val() == ""){
+				modalAlert("회원 유형을 반드시 선택하세요.");
+				return false;
+			}
+			if($("#moblphon").val() == ""){
+				modalAlert("휴대폰 번호를 입력하세요.");
+				return false;
+			}
+			if (!/(0[0-9]{1}[0-9]{1})([0-9]{3,4})([0-9]{4})$/.test($('#moblphon').val())){
+				modalAlert("다음과 같은 형식으로만 작성해 주세요.<br> ex) 01012345678 ");
+				return false;
+			}
+			//거점소독 시설 관리자 일 경우
+			$.ajax({
+				url : global.apiUrl+"/accounts/countBy?&schColumns=mobile&schKeywords="+$("#moblphon").val()+"&columnTypes=STRING&columnFormats=&comparisonOperators=EQ&conditions=AND",
+				type: "GET",
+				cache: false,
+				dataType: "json",
+				success: function(data){
+					if(data.page.totalElements >0){
+						modalAlert("중복된 휴대폰 번호 입니다.");
+						return false;
+					}else if(data.page.totalElements ==0){
+						modalAlert("사용 가능한 휴대폰 번호 입니다.");
+						$("#moblphonCertifity").val("1");
+					}
+				}
+			})
+		}
+		/* 휴대폰 onChange 중복체크 초기화.*/
+		function onChangeCkPhone(){
+			$("#moblphonCertifity").val("");
+		}
+		//검색 API 펑션 호출
+		function DsnfFcltyOnclick(){
+			DsnfFcltyAddress();
+		}
+		function submitModalFunction(formData){
+			event.preventDefault();
+			$('#ajaxConfirmModal').hide();
+			$.ajax({
+				type: 'PUT',
+				url: global.apiUrl + "/members/update",
+				data: JSON.stringify(formData),
+				contentType: "application/json",
+				async: false,
+				dataType: 'json',
+				success: function (res) {
+					$("#successModal").fadeIn();
+				},
+				error: function (err) {
+					alert("실패");
+				},
+			});
+		}
+		function ajaxConfirmModal_close(){	
+			event.preventDefault();
+			$('#ajaxConfirmModal').hide();
+			$('#ajaxConfirmModal').parent().remove();
+		}
+
+		/* ajax 성공시 페이지 이동 */
+		function successModal_close(){
+			event.preventDefault();
+			$('#successModal').hide();
+			window.location.href="./home.html"
+		}
+	</script>
+</head>
+<body>
+	<div class="join user2 bg-gray" id="wrap">
+		<form id="joinSubmit">
+			<!-- header -->
+			<header class="user2">
+				<div class="title-box">
+					<h1>개인정보 수정</h1>
+				</div>
+			</header>
+			<!-- //header -->
+			<div class="container pd-yes">
+				<div class="input-box sm">
+					<label for="id">아이디 <b class="point">*</b></label>
+					<span id="accountId" style="font-size: 20px;"></span>
+				</div>
+				<div class="input-box sm">
+					<!-- pass -->
+					<label for="pw">비밀번호 <b class="point">*</b></label>
+					<input type="password" name="passwd" id="passwd" placeholder="비밀번호">
+				</div>
+				<div class="input-box sm">
+					<label for="pw2">비밀번호 재입력 <b class="point">*</b></label>
+					<input type="password" name="password_confirm" id="password_confirm" placeholder="비밀번호 재입력">
+				</div>
+				<div class="input-box sm">
+					<label for="name">이름 <b class="point">*</b></label>
+					<input type="text" name="name" id="name" placeholder="이름">
+				</div>
+				<div class="input-box sm">
+					<label for="">이메일주소 <b class="point">*</b></label>
+					<input type="email" name="email" id="email" placeholder="이메일주소">
+				</div>
+				<div class="input-box sm">
+					<label for="">성별 <b class="point">*</b></label>
+					<ul class="choice gender">
+						<li class="on" style="width: 50%;">
+							<input id="radio_man" class="radio-dsf__option" type="radio" name="sex" checked="checked" value="MALE">
+							<label class="radio-dsf__label" for="radio_man">남자</label>
+						</li>
+						<li style="width: 50%;">
+							<input id="radio_woman" class="radio-dsf__option" type="radio" name="sex" value="FEMALE">
+							<label class="radio-dsf__label" for="radio_woman">여자</label>
+						</li>
+					</ul>
+				</div>
+				<div class="input-box sm">
+					<label for="name">휴대폰 번호 <b class="point">*</b></label>
+					<input type="text" name="moblphon" id="moblphon" placeholder="숫자만 입력해 주세요" onchange="onChangeCkPhone();">
+					<button type="button" class="btn-dsf-inn" id="moblphonButton" onclick="moblphonCheck();">중복확인</button>
+					<input type="hidden" id="moblphonCertifity">
+				</div>
+				<!-- <div class="input-box sm">
+                        <label for="">휴대폰번호 <b class="point">*</b></label>
+                        <input type="text" name="telno" id="telno" placeholder="휴대폰번호">
+                        <button type="button" class="btn-input-inn">인증하기</button>
+                    </div>
+                    <div class="input-box sm">
+                        <label for="">인증번호 재입력 <b class="point">*</b></label>
+                        <input type="text" name="" id="" placeholder="인증번호">
+                        <button type="button" class="btn-input-inn">확인</button>
+                    </div> -->
+				<!-- 거점소독 시설 관리자 일 경우에 START-->
+				<div class="user-info user2">
+					<p class="tit-row">관리자정보</p>
+					<div class="input-box sm">
+						<label for="">소속 <b class="point">*</b></label>
+						<input type="text" name="position" id="position" placeholder="소속">
+					</div>
+					<div class="input-box sm">
+						<label for="">직급 <b class="point">*</b></label>
+						<input type="text" name="clsf" id="clsf" placeholder="직급">
+					</div>
+					<div class="input-box sm">
+						<label for="">근무지 명 <b class="point">*</b></label>
+						<input type="text" name="workAreaNm" id="workAreaNm" placeholder="근무지 명">
+					</div>
+					<!-- 추가 -->
+					<p class="tit-row">시설정보</p>
+					<div class="input-box sm">
+						<label for="fclty_nm">시설명 <b class="point">*</b></label>
+						<input type="text" id="fclty_nm" name="fclty_nm" placeholder="시설명">
+					</div>
+					<div class="input-box sm">
+						<label for="">시설 지역 <b class="point">*</b></label>
+						<select  id="fclty_area" name="fclty_area"  class="">
+							<option value="" selected="">지역선택</option>
+							<option value="SU">서울</option>
+							<option value="GG">경기</option>
+							<option value="IC">인천</option>
+							<option value="BS">부산</option>
+							<option value="DG">대구</option>
+							<option value="GJ">광주</option>
+							<option value="DJ">대전</option>
+							<option value="US">울산</option>
+							<option value="SJ">세종</option>
+							<option value="GW">강원</option>
+							<option value="GN">경남</option>
+							<option value="GB">경북</option>
+							<option value="JN">전남</option>
+							<option value="JNBK">전북</option>
+							<option value="CHN">충남</option>
+							<option value="CB">충북</option>
+							<option value="JJ">제주</option>
+						</select>
+					</div>
+					<div class="input-box sm">
+						<label for="">운영상태 <b class="point">*</b></label>
+						<select  name="fclty_status" id="fclty_status" class="">
+							<option value="">운영상태</option>
+							<option value="NRMLT">정상</option>
+							<option value="WAIT">대기</option>
+							<option value="EMGNC">비상</option>
+							<option value="CLS">폐쇄</option>
+						</select>
+					</div>
+					<div class="input-box sm">
+						<label for="fclty_rnAdres1">시설 주소 <b class="point">*</b></label>
+						<input type="text" name="fclty_rnAdres1" id="fclty_rnAdres1" placeholder="시설 주소" readonly>
+						<input type="text" name="fclty_adres2" id="fclty_adres2" placeholder="시설 상세주소">
+						<input type="hidden" name="fclty_lmnAdres1"  id="fclty_lmnAdres1" placeholder="시설 지번주소">
+						<input type="hidden" name="fclty_zip"  id="fclty_zip" placeholder="시설 우편주소">
+						<input type="hidden" name="fclty_userSelectedType" id="fclty_userSelectedType" placeholder="도로명/지역 구분코드">
+						<button type="button" class="btn-dsf-inn" id="fclty_adres1Button" onclick="DsnfFcltyOnclick();">검색</button>
+					</div>
+					<input type="hidden" name="fclty_id"  id="fclty_id" placeholder="시설 고유번호">
+				</div>
+				<!-- 거점소독 시설 관리자 일 경우에 END-->
+			</div>
+			<div class="btn-wrap one pd-yes">
+				<button type="submit" class="btn bg-mint lg btn-join" onclick="submitFunction();">개인정보 수정</button>
+			</div>
+		</form>
+		<div class="popup-wrap sm" id="successModal">
+			<div class="popup-box sm">
+				<div class="popup-header sm">
+				</div>
+				<div class="popup-contents sm">
+					<p class="txt">수정을 완료 하였습니다.</p>
+				</div>
+				<div class="popup-footer sm">
+					<button type="button" class="btn bg-green btn-delete" style='width:100%;' onclick="successModal_close();">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
