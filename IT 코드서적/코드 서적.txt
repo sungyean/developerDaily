@@ -1,2 +1,5 @@
-스티브 맥코넬(steve McConnell) Code Complete 
-로버트 마틴(Robert Martin) Clean Code 
+코드 간결화 서적 
+-스티브 맥코넬(steve McConnell): Code Complete 
+-로버트 마틴(Robert Martin): Clean Code 
+알고리즘 서적 
+-게일 라크만 맥다월: 코딩 인터뷰 완전분석
