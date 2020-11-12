@@ -9,3 +9,8 @@ blog : https://simpleprogrammer.com/products/careerguide/links추
 - 다형성이란? 캡슐화란? 클래스란? 상속이란 어떤 형태로 이루어 지는지에 대한 개념
 - 알고리즘 공부 
 - 
+
+
+이력서 작성 
+- 자신이 한 업무, 그 업무를 수행한 방법, 자신이 얻은 결과를 서술해라.
+
