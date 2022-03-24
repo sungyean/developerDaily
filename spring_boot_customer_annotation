@@ -1,0 +1,11 @@
+커스텀 어노 테이션 
+  @Target : 는 해당 사용자가 만든 어노테이션이 부착될 수 있는 타입을 지정하는 것
+  @Target({ElementType.XXXX, ElementType.XXXX,....}) 이와 같이 XXXX 부분에 자신의 어노테이션의 부착을 원하는 타입을 지정해 주면 된다.
+  여기서 CONSCONSTRUCTOR / METHOD / FIELD는 말 그대로 생성자 / 메서드 / 필드에 어노테이션을 부착할 수 있게 하겠다는 의미
+  
+  @Retention
+  @Retetion 은 Annotation 이 실제로 적용되고 유지되는 범위를 의미합니다.
+  Policy 에 관련된 Annotation 으로 컴파일 이후에도 JVM 에서 참조가 가능한 RUNTIME 으로 지정합니다.
+  종류는 다음과 같습니다.
+  (RetentionPolicy.RUNTIME, RetentionPolicy.CLASS, RetentionPolicy.SOURCE)
+  
