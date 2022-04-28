@@ -1,0 +1,84 @@
+1.key 값을 쓰는 이유 -> 반복문 돌린 요소를 컴퓨터가 구분하기 위해 
+
+2. v-for은 변수명을 2개까지 쓸 수 있으며, 데이터 와 숫자 증가번호이다.
+<a v-for="menu in menuList" :key="menu">{{menu}}</a>
+<a v-for="(menu,i) in menuList" :key="i">{{i}}</a>
+
+
+기본 vue 핸들러 참고 예제
+  
+<template>
+	<img alt="Vue logo" src="./assets/logo.png">
+
+	<div class="menu">
+		<a v-for="menu in menuList" :key="menu">{{menu}}</a>
+		<a v-for="(menu,i) in menuList" :key="i">{{i}}</a>
+
+	</div>
+	<div>
+		<h4 class="red" :style="mystyle">{{roomList[0]}}</h4>
+		<p>50 만원</p>
+		<button @click="reportCnt+= 2">허위매물신고</button> <span>신고수 : {{reportCnt}}</span>
+		<button @click="report">허위매물신고</button> <span>신고수 : {{reportCnt[0]}}</span>
+	</div>
+	<div>
+		<h4 class="red" :style="mystyle">{{roomList[1]}}</h4>
+		<button @click="report2">허위매물신고</button> <span>신고수 : {{reportCnt[1]}}</span>
+		<p>60 만원</p>
+	</div>
+	<div>
+		<h4 class="red" :style="mystyle">{{roomList[2]}}</h4>
+		<button @click="report3">허위매물신고</button> <span>신고수 : {{reportCnt[2]}}</span>
+		<p>70 만원</p>
+	</div>
+	<!-- <div v-for="(room) in roomList" :key="room">
+		<h4 class="red" :style="mystyle">{{room}}</h4>
+		<p>50 만원</p>
+	</div> -->
+</template>
+<script>
+export default {
+	name: 'App',
+	data() {
+		return {
+			mystyle : 'color : blue',
+			roomList :  ['역삼동 원룸','천호동 원룸','마포구 원룸'],
+			menuList : ['Home','Shop','About'],
+			reportCnt : [0,0,0]
+		}
+	},
+	methods: {
+		report(){
+			this.reportCnt[0] += 1;
+		},
+		report2(){
+			this.reportCnt[1] += 1;
+		},
+		report3(){
+			this.reportCnt[2] += 1;
+		}
+	},
+	components: {
+		
+	}
+}
+</script>
+
+<style>
+	#app {
+		font-family: Avenir, Helvetica, Arial, sans-serif;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-align: center;
+		color: #2c3e50;
+	}
+	.menu {
+		background: darkslateblue;
+		padding: 15px;
+		border-radius: 5px;
+	}
+	.menu a {
+		color: white;
+		padding: 10px;
+	}
+</style>
