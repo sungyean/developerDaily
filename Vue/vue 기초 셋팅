@@ -1,0 +1,6 @@
+1.node.js 설치(LTS 버전) -> 최신버전  (https://nodejs.org/en/)
+2.VS CODE 설치 
+3.npm install -g @vue/cli ( vue 프로젝트를 빠르게 생성해주는 라이브러리)
+4.VSC CODE 에디터 부가기능 (vetur, html css support, vue 3 snippets) 
+5.vue create 프로젝트명( 프로젝트 생성)
+6.npm run serve (서버 open)
