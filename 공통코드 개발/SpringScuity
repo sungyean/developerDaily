@@ -1,4 +1,8 @@
 
+- gradle 등록 
+implementation 'org.springframework.boot:spring-boot-starter-security' //spring-security
+testImplementation 'org.springframework.security:spring-security-test' //spring-security
+
 
 package kware.common.config;
 
