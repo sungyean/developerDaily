@@ -1,0 +1,14 @@
+
+1. mapper id가 다를경우 - 대부분 이경우
+
+   - mapper파일에 <select id=''.. 에 id 과 DAO 파일의 매퍼 아이디가 다른경우 
+
+   - ex ) <select id="getUserInfo"       와  sqlSessionTemplate.selectOne("userMapper.getUser",userSeq);
+
+2. mapper에 정의된 namespace 중복될 경우
+
+   - mapper.xml 파일의 <mapper namespace="userMapper"> 가 중복되는지 체크
+
+3. mapper location 세팅 확인 - 경로가 잘 잡혔는지. (프로젝트 처음 세팅을 했는데 안되는 경우 이 부분 확인)
+
+   - classpath*:static/mappers/**/*Mapper.xml 이부분
