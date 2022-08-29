@@ -1,0 +1,23 @@
+
+
+DB 정보 보고서 관리
+
+TOP 메뉴 리스트 추가 테이블
+table : st_programlist 
+보고서 관리 (관리자) - TOP MENU
+INSERT INTO channeldb.st_programlist (`PROGRM_UNIQUE_ID`, `PROGRM_FILE_NM`, `PROGRM_TYPE_CD`, `SERVICE_ID`, `PROGRM_STORE_PATH`, `PROGRM_KOREAN_NM`, `PROGRM_DC`, `URL`, `USE_AT`, `MENU_USE_AT`, `MENU_ADMIN_AT`, `MENU_NM`, `SORT_ORDER`, `FRST_REGISTER_ID`, `FRST_REGIST_PNTTM`, `LAST_UPDUSR_ID`, `LAST_UPDT_PNTTM`)
+VALUES('PROGRAM_000000000026', 'report_store_templage_list', 'WEB', '015', '/admin/report_template_list', '보고서 관리', '보고서를 관리하는 프로그램', '/admin/report_template_list.do', 'Y', 'Y', 'Y', '보고서 관리', '115', 'admin', now(),'admin', now());
+보고서 (사용자) - LEFT MENU
+INSERT INTO channeldb.st_programlist (`PROGRM_UNIQUE_ID`, `PROGRM_FILE_NM`, `PROGRM_TYPE_CD`, `SERVICE_ID`, `PROGRM_STORE_PATH`, `PROGRM_KOREAN_NM`, `PROGRM_DC`, `URL`, `USE_AT`, `MENU_USE_AT`, `MENU_ADMIN_AT`, `MENU_NM`, `SORT_ORDER`, `FRST_REGISTER_ID`, `FRST_REGIST_PNTTM`, `LAST_UPDUSR_ID`, `LAST_UPDT_PNTTM`)
+VALUES('PROGRAM_000000000027', 'report_list_web', 'WEB', '015', '/business/report', '보고서', '보고서 리스트', '/web/store.do', 'Y', 'Y', 'N', '보고서', '5', 'admin', now(),'admin', now());
+
+
+매장관리 리스트 테이블 (회원_관리양식관리 ) --> 보고서 리스트 테이블 (보고서_관리양식)
+url : (store_list.do)
+table : us_templatemanage 	
+
+
+
+
+
+
